@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/30 22:23:17 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/30 23:17:45 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,18 +115,56 @@ void	my_mlx_pixel_put(t_img_data *data, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
+void	img_paint_all(t_img_data *data, int color)
+{
+	int	x;
+	int	y;
+
+	y = 0;
+	while (y < S_HEIGHT)
+	{
+		x = 0;
+		while (x < S_WIDTH)
+		{
+			my_mlx_pixel_put(data, x, y, color);
+			x++;
+		}
+		y++;
+	}
+}
+
+void	img_paint_square(t_img_data *data, int color, int x, int y, int side)
+{
+	int	i;
+	int	j;
+
+	j = y;
+	while (j < y + side)
+	{
+		i = x;
+		while (i < x + side)
+		{
+			my_mlx_pixel_put(data, i, j, color);
+			i++;
+		}
+		j++;
+	}
+}
+
 int	main(void)
 {
 	t_mlx_data	mlx;
 	t_img_data	img;
-	int			offset;
 
 	mlx.mlx = mlx_init();
 	mlx.win = mlx_new_window(mlx.mlx, S_WIDTH, S_HEIGHT, "cube3d");
 	img.img = mlx_new_image(mlx.mlx, S_WIDTH, S_HEIGHT);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
 								&img.endian);
-	my_mlx_pixel_put(&img, 5, 5, 0x00FF0000);
+
+	img_paint_all(&img, 0x00FFFFFF);
+	img_paint_square(&img, 0x00000000, S_WIDTH / 2, S_HEIGHT / 2, 100);
+
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
 	mlx_loop(mlx.mlx);
 
