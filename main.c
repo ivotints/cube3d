@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 20:02:04 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 22:23:38 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -440,6 +440,39 @@ void	img_paint_noise(t_img_data *data, int delta)
 	}
 }
 
+//Returns the requested value which can be t, r, g or b
+unsigned char	get_separate_trgb(int trgb, char color)
+{
+	if (color == 't')
+		return (((unsigned char *)&trgb)[3]);
+	if (color == 'r')
+		return (((unsigned char *)&trgb)[2]);
+	if (color == 'g')
+		return (((unsigned char *)&trgb)[1]);
+	if (color == 'b')
+		return (((unsigned char *)&trgb)[0]);
+	write(1, "Wrong input in get_trgb()\n", 27);
+	return (0);
+}
+
+int	create_trgb(int t, int r, int g, int b)
+{
+	return (t << 24 | r << 16 | g << 8 | b);
+}
+
+int	add_shade(double dim, int color)
+{
+	unsigned char	RGB[3];
+
+	RGB[0] = get_separate_trgb(color, 'r');
+	RGB[1] = get_separate_trgb(color, 'g');
+	RGB[2] = get_separate_trgb(color, 'b');
+	RGB[0] = RGB[0] - (RGB[0]) * dim;
+	RGB[1] = RGB[1] - (RGB[1]) * dim;
+	RGB[2] = RGB[2] - (RGB[2]) * dim;
+	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
+}
+
 int	main(void)
 {;
 	t_mlx_data	mlx;
@@ -460,11 +493,16 @@ int	main(void)
 	img_paint_square(&img, 0x00CACACA, 400, 200, 200);
 	img_paint_square(&img, 0x00DADADA, 600, 200, 200);
 	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
-	img_paint_triangle(&img, 0x00FFAAAA, 500, 100, 100);
 	img_paint_ranbow_square(&img, 200, 200, 200);
 	img_paint_hexagon(&img, 0x00BF7A7A, 500, 300, 40);
 	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(mlx.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
-	img_paint_noise(&img, 3);
+	img_paint_noise(&img, 2);
+	img_paint_triangle(&img, add_shade(0.1, create_trgb(0, 255, 255, 0)), 300, 113, 100);
+	img_paint_triangle(&img, add_shade(0.3, create_trgb(0, 255, 255, 0)), 400, 113, 100);
+	img_paint_triangle(&img, add_shade(0.5, create_trgb(0, 255, 255, 0)), 500, 113, 100);
+	img_paint_triangle(&img, add_shade(0.7, create_trgb(0, 255, 255, 0)), 600, 113, 100);
+	img_paint_triangle(&img, add_shade(0.9, create_trgb(0, 255, 255, 0)), 700, 113, 100);
+
 
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
