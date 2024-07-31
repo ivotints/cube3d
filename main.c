@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 14:15:22 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 16:26:11 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,6 +235,40 @@ void	img_paint_hexagon(t_img_data *data, int color, double x, double y, double s
 	img_paint_rtriangle(data, color, x - side / 2, y, side);
 }
 
+void	img_paint_all_gradient(t_img_data *data, int color1, int color2)
+{
+	int x, y;
+	double RGB1[3], RGB2[3], deltaRGB[3], currentRGB[3];
+	int color;
+
+	RGB1[0] = (color1 >> 16) & 0xFF;
+	RGB1[1] = (color1 >> 8) & 0xFF;
+	RGB1[2] = color1 & 0xFF;
+	RGB2[0] = (color2 >> 16) & 0xFF;
+	RGB2[1] = (color2 >> 8) & 0xFF;
+	RGB2[2] = color2 & 0xFF;
+
+	deltaRGB[0] = (RGB2[0] - RGB1[0]) / (double)S_HEIGHT;
+	deltaRGB[1] = (RGB2[1] - RGB1[1]) / (double)S_HEIGHT;
+	deltaRGB[2] = (RGB2[2] - RGB1[2]) / (double)S_HEIGHT;
+
+	y = 0;
+	color = color1;
+	while (y < S_HEIGHT)
+	{
+		x = 0;
+		currentRGB[0] = RGB1[0] + deltaRGB[0] * y;
+		currentRGB[1] = RGB1[1] + deltaRGB[1] * y;
+		currentRGB[2] = RGB1[2] + deltaRGB[2] * y;
+		color = ((int)currentRGB[0] << 16) | ((int)currentRGB[1] << 8) | (int)currentRGB[2];
+		while (x < S_WIDTH)
+		{
+			my_mlx_pixel_put(data, x, y, color);
+			x++;
+		}
+		y++;
+	}
+}
 
 int	main(void)
 {
@@ -248,10 +282,15 @@ int	main(void)
 								&img.endian);
 
 	img_paint_all(&img, 0x00FFFFFF);
-	img_paint_square(&img, 0x00000000, 87, 87, S_WIDTH / 10);
+	img_paint_all_gradient(&img, 0x007777FF, 0x0000FF00);
+	img_paint_square(&img, 0x00AAAAAA, 0, 200, 200);
+	img_paint_square(&img, 0x00BABABA, 200, 200, 200);
+	img_paint_square(&img, 0x00CACACA, 400, 200, 200);
+	img_paint_square(&img, 0x00DADADA, 600, 200, 200);
 	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
-	img_paint_triangle(&img, 0x00F00F6F, 500, 100, 100);
-	img_paint_hexagon(&img, 0x00F00F6F, 500, 300, 40);
+	img_paint_triangle(&img, 0x00FFAAAA, 500, 100, 100);
+	img_paint_hexagon(&img, 0x00BF7A7A, 500, 300, 40);
+
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
 	mlx_loop(mlx.mlx);
