@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 19:50:32 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 20:02:04 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -408,6 +408,8 @@ void	img_paint_noise(t_img_data *data, int delta)
 	int	color;
 	int	RGB[6];
 
+	if (delta < 1)
+		return ;
 	y = 0;
 	while (y < S_HEIGHT)
 	{
@@ -416,15 +418,21 @@ void	img_paint_noise(t_img_data *data, int delta)
 		{
 			color = img_get_color(data, x, y);
 			RGB[0] = ((color >> 16) & 0xFF) - delta + (rand() % (delta * 2));
-			if (RGB[0] > 0xFF || RGB[0] < 0)
-				RGB[0] = ((color >> 16) & 0xFF);
+			if (RGB[0] > 0xFF)
+				RGB[0] = 0xFF;
+			if (RGB[0] < 0)
+				RGB[0] = 0;
 			RGB[1] = ((color >> 8) & 0xFF) - delta + (rand() % (delta * 2));
-			if (RGB[1] > 0xFF || RGB[1] < 0)
-				RGB[1] = ((color >> 8) & 0xFF);
+			if (RGB[1] > 0xFF)
+				RGB[1] = 0xFF;
+			if (RGB[1] < 0)
+				RGB[1] = 0;
 			RGB[2] = (color & 0xFF) - delta + (rand() % (delta * 2));
-			if (RGB[2] > 0xFF || RGB[2] < 0)
-				RGB[2] = (color & 0xFF);
-			color = RGB[0] << 16 | RGB[1] << 8 | RGB[0];
+			if (RGB[2] > 0xFF)
+				RGB[2] = 0xFF;
+			if (RGB[2] < 0)
+				RGB[2] = 0;
+			color = (RGB[0] << 16) | (RGB[1] << 8) | (RGB[2]);
 			my_mlx_pixel_put(data, x, y, color);
 			x++;
 		}
@@ -456,7 +464,7 @@ int	main(void)
 	img_paint_ranbow_square(&img, 200, 200, 200);
 	img_paint_hexagon(&img, 0x00BF7A7A, 500, 300, 40);
 	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(mlx.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
-	//img_paint_noise(&img, 10);
+	img_paint_noise(&img, 3);
 
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
