@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 02:39:42 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 14:15:22 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,8 +187,8 @@ void	img_paint_triangle(t_img_data *data, int color, double x, double y, double 
 		i = x - side / 2;
 		while (i < x + side / 2)
 		{
-			if (i > x - ((j - y) / median) * (side / 2)
-				&& i < x + ((j - y) / median) * (side / 2))
+			if (i >= x - ((j - y) / median) * (side / 2)
+				&& i <= x + ((j - y) / median) * (side / 2))
 			{
 				my_mlx_pixel_put(data, i, j, color);
 			}
@@ -197,6 +197,44 @@ void	img_paint_triangle(t_img_data *data, int color, double x, double y, double 
 		j++;
 	}
 }
+
+void	img_paint_rtriangle(t_img_data *data, int color, double x, double y, double side)
+{
+	double	i;
+	double	j;
+	double	median;
+
+	j = y;
+	median = sqrt(pow(side, 2) - pow(side / 2, 2));
+	while (j < y + median)
+	{
+		i = x - side / 2;
+		while (i < x + side / 2)
+		{
+			if (i >= x - (1 - (j - y) / median) * (side / 2)
+				&& i <= x + (1 - (j - y) / median) * (side / 2))
+			{
+				my_mlx_pixel_put(data, i, j, color);
+			}
+			i++;
+		}
+		j++;
+	}
+}
+
+void	img_paint_hexagon(t_img_data *data, int color, double x, double y, double side)
+{
+	double	triangle_median;
+
+	triangle_median = sqrt(pow(side, 2) - pow(side / 2, 2));
+	img_paint_triangle(data, color, x, y, side);
+	img_paint_triangle(data, color, x - side / 2, y - triangle_median, side);
+	img_paint_triangle(data, color, x + side / 2, y - triangle_median, side);
+	img_paint_rtriangle(data, color, x, y - triangle_median, side);
+	img_paint_rtriangle(data, color, x + side / 2, y, side);
+	img_paint_rtriangle(data, color, x - side / 2, y, side);
+}
+
 
 int	main(void)
 {
@@ -213,6 +251,7 @@ int	main(void)
 	img_paint_square(&img, 0x00000000, 87, 87, S_WIDTH / 10);
 	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
 	img_paint_triangle(&img, 0x00F00F6F, 500, 100, 100);
+	img_paint_hexagon(&img, 0x00F00F6F, 500, 300, 40);
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
 	mlx_loop(mlx.mlx);
