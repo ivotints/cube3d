@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 17:44:12 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 19:50:32 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,10 +330,113 @@ void	img_paint_ranbow_square(t_img_data *data, int x, int y, int side)
 	}
 }
 
+void	img_paint_checkered_pattern(t_img_data *data, int color1, int color2, int side)
+{
+	int	i;
+	int	j;
+
+	j = 0;
+	while (j < S_HEIGHT)
+	{
+		i = 0;
+		while (i < S_WIDTH)
+		{
+			if (i % (2 * side) < side && j % (2 * side) < side)
+				img_paint_square(data, color1, i, j, side);
+			else if (i % (2 * side) >= side && j % (2 * side) >= side)
+				img_paint_square(data, color1, i, j, side);
+			else
+				img_paint_square(data, color2, i, j, side);
+			i += side;
+		}
+		j += side;
+	}
+}
+
+t_img_data	*img_chess_texture(void *mlx_ptr, int col_1, int col_2, int side)
+{
+	t_img_data	*img;
+
+	img = malloc(sizeof(t_img_data));
+	img->img = mlx_new_image(mlx_ptr, S_WIDTH, S_HEIGHT);
+	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length,
+								&img->endian);
+	img_paint_checkered_pattern(img, col_1, col_2, side);
+	return (img);
+}
+
+int	img_get_color(t_img_data *data, int x, int y)
+{
+	int		color;
+	char	*dst;
+
+	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
+	color = *(unsigned int *)dst;
+	return (color);
+}
+
+
+void	img_paint_circle_texture(t_img_data *img, int x, int y, int radius, t_img_data *texture)
+{
+	int		i;
+	int		j;
+	double	distance;
+	int		color;
+
+	j = y - radius;
+	while (j < y + radius)
+	{
+		i = x - radius;
+		while (i < x + radius)
+		{
+			distance = sqrt(pow(x - i, 2) + pow(y - j, 2));
+			if (distance < radius)
+			{
+				color = img_get_color(texture, i, j);
+				my_mlx_pixel_put(img, i, j, color);
+			}
+			i++;
+		}
+		j++;
+	}
+}
+
+void	img_paint_noise(t_img_data *data, int delta)
+{
+	int	x;
+	int	y;
+	int	color;
+	int	RGB[6];
+
+	y = 0;
+	while (y < S_HEIGHT)
+	{
+		x = 0;
+		while (x < S_WIDTH)
+		{
+			color = img_get_color(data, x, y);
+			RGB[0] = ((color >> 16) & 0xFF) - delta + (rand() % (delta * 2));
+			if (RGB[0] > 0xFF || RGB[0] < 0)
+				RGB[0] = ((color >> 16) & 0xFF);
+			RGB[1] = ((color >> 8) & 0xFF) - delta + (rand() % (delta * 2));
+			if (RGB[1] > 0xFF || RGB[1] < 0)
+				RGB[1] = ((color >> 8) & 0xFF);
+			RGB[2] = (color & 0xFF) - delta + (rand() % (delta * 2));
+			if (RGB[2] > 0xFF || RGB[2] < 0)
+				RGB[2] = (color & 0xFF);
+			color = RGB[0] << 16 | RGB[1] << 8 | RGB[0];
+			my_mlx_pixel_put(data, x, y, color);
+			x++;
+		}
+		y++;
+	}
+}
+
 int	main(void)
 {;
 	t_mlx_data	mlx;
 	t_img_data	img;
+
 
 	mlx.mlx = mlx_init();
 	mlx.win = mlx_new_window(mlx.mlx, S_WIDTH, S_HEIGHT, "cube3d");
@@ -343,6 +446,7 @@ int	main(void)
 
 	img_paint_all(&img, 0x00FFFFFF);
 	img_paint_all_gradient(&img, 0x007777FF, 0x0000FF00);
+	img_paint_checkered_pattern(&img, 0x00000000, 0x00111111, 100);
 	img_paint_square(&img, 0x00AAAAAA, 0, 200, 200);
 	img_paint_square(&img, 0x00BABABA, 200, 200, 200);
 	img_paint_square(&img, 0x00CACACA, 400, 200, 200);
@@ -351,6 +455,8 @@ int	main(void)
 	img_paint_triangle(&img, 0x00FFAAAA, 500, 100, 100);
 	img_paint_ranbow_square(&img, 200, 200, 200);
 	img_paint_hexagon(&img, 0x00BF7A7A, 500, 300, 40);
+	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(mlx.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
+	//img_paint_noise(&img, 10);
 
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
