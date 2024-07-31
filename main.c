@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/30 23:32:42 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 02:39:42 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,8 +163,32 @@ void	img_paint_circle(t_img_data *data, int color, int x, int y, double radius)
 		i = x - radius;
 		while (i < x + radius)
 		{
-			distance = sqrt((x - i) * (x - i) + (y - j) * (y - j));
+			distance = sqrt(pow(x - i, 2) + pow(y - j, 2));
 			if (distance < radius)
+			{
+				my_mlx_pixel_put(data, i, j, color);
+			}
+			i++;
+		}
+		j++;
+	}
+}
+
+void	img_paint_triangle(t_img_data *data, int color, double x, double y, double side)
+{
+	double	i;
+	double	j;
+	double	median;
+
+	j = y;
+	median = sqrt(pow(side, 2) - pow(side / 2, 2));
+	while (j < y + median)
+	{
+		i = x - side / 2;
+		while (i < x + side / 2)
+		{
+			if (i > x - ((j - y) / median) * (side / 2)
+				&& i < x + ((j - y) / median) * (side / 2))
 			{
 				my_mlx_pixel_put(data, i, j, color);
 			}
@@ -186,8 +210,10 @@ int	main(void)
 								&img.endian);
 
 	img_paint_all(&img, 0x00FFFFFF);
-	img_paint_square(&img, 0x00000000, S_WIDTH / 10, S_HEIGHT / 10, S_WIDTH / 10);
-	img_paint_circle(&img, 0x000000FF, S_WIDTH / 5, S_HEIGHT / 10, 50);
+	img_paint_square(&img, 0x00000000, 87, 87, S_WIDTH / 10);
+	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
+	img_paint_triangle(&img, 0x00F00F6F, 500, 100, 100);
+
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
 	mlx_loop(mlx.mlx);
 

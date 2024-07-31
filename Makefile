@@ -6,7 +6,7 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/07/30 19:45:28 by ivotints         ###   ########.fr        #
+#    Updated: 2024/07/31 02:26:36 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,15 +49,16 @@ vrun: $(NAME)
 	@valgrind ./$(NAME)
 
 clean:
-	@make clean -C $(PATH_FT)
-	@make clean -C $(PATH_MLX)
+#	@make clean -C $(PATH_FT)
+#	@make clean -C $(PATH_MLX)
 	@rm -rf $(OBJ_DIR)
 	@echo removed $(OBJ_DIR) folder
 
 fclean: clean
 	@rm -rf $(NAME)
-	@make fclean -C libft
+#	@make fclean -C libft
 	@echo removed $(NAME)
+
 
 re: fclean all
 
