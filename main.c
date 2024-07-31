@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 22:23:38 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/07/31 22:30:59 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,7 +451,7 @@ unsigned char	get_separate_trgb(int trgb, char color)
 		return (((unsigned char *)&trgb)[1]);
 	if (color == 'b')
 		return (((unsigned char *)&trgb)[0]);
-	write(1, "Wrong input in get_trgb()\n", 27);
+	write(2, "Wrong input in get_separate_trgb()\n", 36);
 	return (0);
 }
 
@@ -470,6 +470,19 @@ int	add_shade(double dim, int color)
 	RGB[0] = RGB[0] - (RGB[0]) * dim;
 	RGB[1] = RGB[1] - (RGB[1]) * dim;
 	RGB[2] = RGB[2] - (RGB[2]) * dim;
+	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
+}
+
+int	get_opposite(int color)
+{
+	unsigned char	RGB[3];
+
+	RGB[0] = get_separate_trgb(color, 'r');
+	RGB[1] = get_separate_trgb(color, 'g');
+	RGB[2] = get_separate_trgb(color, 'b');
+	RGB[0] = 0xFF - RGB[0];
+	RGB[1] = 0xFF - RGB[1];
+	RGB[2] = 0xFF - RGB[2];
 	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
 }
 
@@ -502,7 +515,11 @@ int	main(void)
 	img_paint_triangle(&img, add_shade(0.5, create_trgb(0, 255, 255, 0)), 500, 113, 100);
 	img_paint_triangle(&img, add_shade(0.7, create_trgb(0, 255, 255, 0)), 600, 113, 100);
 	img_paint_triangle(&img, add_shade(0.9, create_trgb(0, 255, 255, 0)), 700, 113, 100);
-
+	img_paint_rtriangle(&img, get_opposite(add_shade(0.1, create_trgb(0, 255, 255, 0))), 350, 113, 100);
+	img_paint_rtriangle(&img, get_opposite(add_shade(0.3, create_trgb(0, 255, 255, 0))), 450, 113, 100);
+	img_paint_rtriangle(&img, get_opposite(add_shade(0.5, create_trgb(0, 255, 255, 0))), 550, 113, 100);
+	img_paint_rtriangle(&img, get_opposite(add_shade(0.7, create_trgb(0, 255, 255, 0))), 650, 113, 100);
+	img_paint_rtriangle(&img, get_opposite(add_shade(0.9, create_trgb(0, 255, 255, 0))), 750, 113, 100);
 
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
