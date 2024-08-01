@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 15:22:14 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 16:11:37 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,14 @@ typedef struct	s_img_data
 	int		endian;
 }	t_img_data;
 
-
+typedef struct s_all_data
+{
+	t_img_data	*img;
+	void		*mlx;
+	void		*win;
+	int			ceiling_color;
+	int			floor_color;
+}	t_all_data;
 
 
 #endif

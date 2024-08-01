@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 15:27:22 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 16:29:37 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -492,21 +492,62 @@ int	close_win_mlx(int keycode, t_mlx_data *mlx)
 	return (0);
 }
 
+void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color)
+{
+	int	i;
+	int	j;
+	int	x;
+	int	y;
+
+	j = coordinates4[1];
+	x = coordinates4[2];
+	y = coordinates4[3];
+	while (j < y)
+	{
+		i = coordinates4[0];
+		while (i < x)
+		{
+			my_mlx_pixel_put(data->img, i, j, color);
+			i++;
+		}
+		j++;
+	}
+}
+
+void	img_paint_floor_ceiling(t_all_data *data)
+{
+	int	coordinates[4];
+
+	coordinates[0] = 0;
+	coordinates[1] = 0;
+	coordinates[2] = S_WIDTH;
+	coordinates[3] = S_HEIGHT / 2;
+	img_paint_rectangle(data, &coordinates, data->ceiling_color);
+	coordinates[0] = 0;
+	coordinates[1] = S_HEIGHT / 2;
+	coordinates[2] = S_WIDTH;
+	coordinates[3] = S_HEIGHT;
+	img_paint_rectangle(data, &coordinates, data->floor_color);
+}
+
 int	main(void)
 {
-	t_mlx_data	mlx;
+	t_all_data	data;
 	t_img_data	img;
 
-
-	mlx.mlx = mlx_init();
-	mlx.win = mlx_new_window(mlx.mlx, S_WIDTH, S_HEIGHT, "cube3d");
-	img.img = mlx_new_image(mlx.mlx, S_WIDTH, S_HEIGHT);
+	data.ceiling_color = create_trgb(0, 51, 153, 255);
+	data.floor_color = create_trgb(0, 64, 64, 64);
+	data.mlx = mlx_init();
+	data.win = mlx_new_window(data.mlx, S_WIDTH, S_HEIGHT, "cube3d");
+	img.img = mlx_new_image(data.mlx, S_WIDTH, S_HEIGHT);
 	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
 								&img.endian);
+	data.img = &img;
+	img_paint_floor_ceiling(&data);
 
-	img_paint_all(&img, 0x00FFFFFF);
-	img_paint_all_gradient(&img, 0x007777FF, 0x0000FF00);
-	img_paint_checkered_pattern(&img, 0x00000000, 0x00111111, 100);
+
+
+
 	img_paint_square(&img, 0x00AAAAAA, 0, 200, 200);
 	img_paint_square(&img, 0x00BABABA, 200, 200, 200);
 	img_paint_square(&img, 0x00CACACA, 400, 200, 200);
@@ -514,7 +555,7 @@ int	main(void)
 	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
 	img_paint_ranbow_square(&img, 200, 200, 200);
 	img_paint_hexagon(&img, 0x00D00000, 500, 300, 40);
-	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(mlx.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
+	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(data.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
 	img_paint_noise(&img, 2);
 	img_paint_triangle(&img, add_shade(0.1, create_trgb(0, 255, 255, 0)), 300, 113, 100);
 	img_paint_triangle(&img, add_shade(0.3, create_trgb(0, 255, 255, 0)), 400, 113, 100);
@@ -528,9 +569,9 @@ int	main(void)
 	img_paint_rtriangle(&img, get_opposite(add_shade(0.9, create_trgb(0, 255, 255, 0))), 750, 113, 100);
 
 
-	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
-	mlx_hook(mlx.win, ON_KEYDOWN, KeyPressMask, close_win_mlx, &mlx);
-	mlx_loop(mlx.mlx);
+	mlx_put_image_to_window(data.mlx, data.win, img.img, 0, 0);
+	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, close_win_mlx, &data);
+	mlx_loop(data.mlx);
 
 
 
