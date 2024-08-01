@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 22:26:41 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 22:57:00 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,12 @@
 # define TRUE 1
 # define FALSE 0
 # define ON_KEYDOWN 2
+# define ON_KEYUP 3
 # define ON_EXPOSE 12
 # define ON_DESTROY 17
 # define ResizeRequest 25
 # define KeyPressMask (1L<<0)
+# define KeyReleaseMask (1L<<1)
 
 
 
@@ -71,6 +73,7 @@ typedef struct s_all_data
 	int			ceiling_color;
 	int			floor_color;
 	int			player_xy[2];
+	int			key_state[256];
 }	t_all_data;
 
 

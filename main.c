@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 22:30:21 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 23:07:23 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,48 +114,39 @@ int	is_movement_key(int key)
 	return (FALSE);
 }
 
-void	change_player_xy(t_all_data *data, int key)
+void	update_player_position(t_all_data *data)
 {
-	if (key == XK_W || key == XK_w)
+	if (data->key_state[XK_W] || data->key_state[XK_w])
 		data->player_xy[1] -= 1;
-	if (key == XK_A || key == XK_a)
+	if (data->key_state[XK_A] || data->key_state[XK_a])
 		data->player_xy[0] -= 1;
-	if (key == XK_S || key == XK_s)
+	if (data->key_state[XK_S] || data->key_state[XK_s])
 		data->player_xy[1] += 1;
-	if (key == XK_D || key == XK_d)
+	if (data->key_state[XK_D] || data->key_state[XK_d])
 		data->player_xy[0] += 1;
-}
-
-int	handle_input(int key, t_all_data *data)
-{
-	if (key == XK_Escape)
-	{
-		printf("The %d key (ESC) has been pressed\n\n", key);
-		handle_destroy(data);
-	}
-	if (is_movement_key(key))
-		change_player_xy(data, key);
-	printf("The %d key has been pressed\n\n", key);
-	return (0);
 }
 
 int	render_next_frame(t_all_data *data)
 {
-	int	ijr[3];
+	int	xyr[3];
 	int	color;
 
-	ijr[0] = data->player_xy[0];
-	ijr[1] = data->player_xy[1];
-	ijr[2] = 20;
-	color = create_trgb(0, 255, 255, 51);
+	update_player_position(data);
 	img_paint_floor_ceiling(data);
-	img_paint_circle(data->img, ijr, color);
+
+	xyr[0] = data->player_xy[0];
+	xyr[1] = data->player_xy[1];
+	xyr[2] = 10;
+	color = create_trgb(0, 255, 255, 51);
+	img_paint_circle(data->img, xyr, color);
 	mlx_put_image_to_window(data->mlx, data->win, data->img->img, 0, 0);
 	return (0);
 }
 
 void	init_data(t_all_data *data, t_img_data *img)
 {
+	int	i;
+
 	data->img = img;
 	data->ceiling_color = create_trgb(0, 51, 153, 255);
 	data->floor_color = create_trgb(0, 64, 64, 64);
@@ -163,9 +154,30 @@ void	init_data(t_all_data *data, t_img_data *img)
 	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
 	img->img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
 	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
-	data->player_xy[0] = 100;
-	data->player_xy[1] = 100;
+	data->player_xy[0] = 10;
+	data->player_xy[1] = 10;
+	i = 0;
+	while (i < 256)
+		data->key_state[i++] = FALSE;
 }
+
+int	handle_keypress(int	key, t_all_data *data)
+{
+	printf("The %d key has been pressed\n\n", key);
+	if (key == XK_Escape)
+		handle_destroy(data);
+	if (is_movement_key(key))
+		data->key_state[key] = TRUE;
+	return (0);
+}
+
+int	handle_keyrelease(int	key, t_all_data *data)
+{
+	if (is_movement_key(key))
+		data->key_state[key] = FALSE;
+	return (0);
+}
+
 
 int	main(void)
 {
@@ -173,8 +185,9 @@ int	main(void)
 	t_img_data	img;
 
 	init_data(&data, &img);
-	mlx_key_hook(data.win, handle_input, &data);
 	mlx_hook(data.win, 17, 0, handle_destroy, &data);
+	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, handle_keypress, &data);
+	mlx_hook(data.win, ON_KEYUP, KeyReleaseMask, handle_keyrelease, &data);
 	mlx_loop_hook(data.mlx, render_next_frame, &data);
 	mlx_loop(data.mlx);
 	return (0);
