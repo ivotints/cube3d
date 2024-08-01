@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/31 22:30:59 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 15:27:22 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -486,8 +486,14 @@ int	get_opposite(int color)
 	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
 }
 
+int	close_win_mlx(int keycode, t_mlx_data *mlx)
+{
+	mlx_destroy_window(mlx->mlx, mlx->win);
+	return (0);
+}
+
 int	main(void)
-{;
+{
 	t_mlx_data	mlx;
 	t_img_data	img;
 
@@ -507,7 +513,7 @@ int	main(void)
 	img_paint_square(&img, 0x00DADADA, 600, 200, 200);
 	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
 	img_paint_ranbow_square(&img, 200, 200, 200);
-	img_paint_hexagon(&img, 0x00BF7A7A, 500, 300, 40);
+	img_paint_hexagon(&img, 0x00D00000, 500, 300, 40);
 	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(mlx.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
 	img_paint_noise(&img, 2);
 	img_paint_triangle(&img, add_shade(0.1, create_trgb(0, 255, 255, 0)), 300, 113, 100);
@@ -523,6 +529,7 @@ int	main(void)
 
 
 	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
+	mlx_hook(mlx.win, ON_KEYDOWN, KeyPressMask, close_win_mlx, &mlx);
 	mlx_loop(mlx.mlx);
 
 

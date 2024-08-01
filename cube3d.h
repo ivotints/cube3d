@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/30 22:10:07 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 15:22:14 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@
 
 # define S_WIDTH 800
 # define S_HEIGHT 600
+# define ON_KEYDOWN 2
+# define ON_DESTROY 17
+# define KeyPressMask (1L<<0)
 
 
 //colors
