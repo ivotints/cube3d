@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 16:11:37 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 17:50:43 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,14 @@
 # include "minilibx-linux/mlx.h"
 # include "libft/libft.h"
 
-# define S_WIDTH 800
-# define S_HEIGHT 600
+# define S_WIDTH 1280
+# define S_HEIGHT 1024
 # define ON_KEYDOWN 2
+# define ON_EXPOSE 12
 # define ON_DESTROY 17
+# define ResizeRequest 25
 # define KeyPressMask (1L<<0)
+
 
 
 //colors

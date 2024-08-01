@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 16:29:37 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 18:10:07 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,21 +91,6 @@ int	main(int ac, char **av)
 	return (0);
 }
  */
-
-/* int	handle_input(int keysym, t_mlx_data *data)
-{
-	if(keysym == XK_Escape)
-	{
-		printf("The %d key (ESC) has been pressed\n\n", keysym);
-		mlx_destroy_window(data->mlx, data->win);
-		mlx_destroy_display(data->mlx);
-		free(data->mlx);
-		exit(0);
-	}
-	printf("The %d key has been pressed\n\n", keysym);
-	return (0);
-} */
-
 
 void	my_mlx_pixel_put(t_img_data *data, int x, int y, int color)
 {
@@ -486,12 +471,6 @@ int	get_opposite(int color)
 	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
 }
 
-int	close_win_mlx(int keycode, t_mlx_data *mlx)
-{
-	mlx_destroy_window(mlx->mlx, mlx->win);
-	return (0);
-}
-
 void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color)
 {
 	int	i;
@@ -522,12 +501,37 @@ void	img_paint_floor_ceiling(t_all_data *data)
 	coordinates[1] = 0;
 	coordinates[2] = S_WIDTH;
 	coordinates[3] = S_HEIGHT / 2;
-	img_paint_rectangle(data, &coordinates, data->ceiling_color);
+	img_paint_rectangle(data, coordinates, data->ceiling_color);
 	coordinates[0] = 0;
 	coordinates[1] = S_HEIGHT / 2;
 	coordinates[2] = S_WIDTH;
 	coordinates[3] = S_HEIGHT;
-	img_paint_rectangle(data, &coordinates, data->floor_color);
+	img_paint_rectangle(data, coordinates, data->floor_color);
+}
+
+int	handle_input(int keysym, t_all_data *data)
+{
+	if(keysym == XK_Escape)
+	{
+		printf("The %d key (ESC) has been pressed\n\n", keysym);
+		mlx_destroy_image(data->mlx, data->img->img);
+		mlx_destroy_window(data->mlx, data->win);
+		mlx_destroy_display(data->mlx);
+		free(data->mlx);
+		exit(0);
+	}
+	printf("The %d key has been pressed\n\n", keysym);
+	return (0);
+}
+
+int	handle_destroy(t_all_data *data)
+{
+	printf("Cross is pressed\n");
+	mlx_destroy_image(data->mlx, data->img->img);
+	mlx_destroy_window(data->mlx, data->win);
+	mlx_destroy_display(data->mlx);
+	free(data->mlx);
+	exit(0);
 }
 
 int	main(void)
@@ -545,44 +549,10 @@ int	main(void)
 	data.img = &img;
 	img_paint_floor_ceiling(&data);
 
-
-
-
-	img_paint_square(&img, 0x00AAAAAA, 0, 200, 200);
-	img_paint_square(&img, 0x00BABABA, 200, 200, 200);
-	img_paint_square(&img, 0x00CACACA, 400, 200, 200);
-	img_paint_square(&img, 0x00DADADA, 600, 200, 200);
-	img_paint_circle(&img, 0x00000F6F, S_WIDTH / 5, S_HEIGHT / 10, 50);
-	img_paint_ranbow_square(&img, 200, 200, 200);
-	img_paint_hexagon(&img, 0x00D00000, 500, 300, 40);
-	img_paint_circle_texture(&img, 100, 500, 100, img_chess_texture(data.mlx, 0x00D59F3D, 0x00DDFFDD, 10));
-	img_paint_noise(&img, 2);
-	img_paint_triangle(&img, add_shade(0.1, create_trgb(0, 255, 255, 0)), 300, 113, 100);
-	img_paint_triangle(&img, add_shade(0.3, create_trgb(0, 255, 255, 0)), 400, 113, 100);
-	img_paint_triangle(&img, add_shade(0.5, create_trgb(0, 255, 255, 0)), 500, 113, 100);
-	img_paint_triangle(&img, add_shade(0.7, create_trgb(0, 255, 255, 0)), 600, 113, 100);
-	img_paint_triangle(&img, add_shade(0.9, create_trgb(0, 255, 255, 0)), 700, 113, 100);
-	img_paint_rtriangle(&img, get_opposite(add_shade(0.1, create_trgb(0, 255, 255, 0))), 350, 113, 100);
-	img_paint_rtriangle(&img, get_opposite(add_shade(0.3, create_trgb(0, 255, 255, 0))), 450, 113, 100);
-	img_paint_rtriangle(&img, get_opposite(add_shade(0.5, create_trgb(0, 255, 255, 0))), 550, 113, 100);
-	img_paint_rtriangle(&img, get_opposite(add_shade(0.7, create_trgb(0, 255, 255, 0))), 650, 113, 100);
-	img_paint_rtriangle(&img, get_opposite(add_shade(0.9, create_trgb(0, 255, 255, 0))), 750, 113, 100);
-
-
 	mlx_put_image_to_window(data.mlx, data.win, img.img, 0, 0);
-	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, close_win_mlx, &data);
+	mlx_key_hook(data.win, handle_input, &data);
+	mlx_hook(data.win, 17, 0, handle_destroy, &data);
+
 	mlx_loop(data.mlx);
-
-
-
-
-	//mlx_key_hook(data.win, handle_input, &data);
-
-
-
-
-	//mlx_destroy_window(data.mlx, data.win);
-	//mlx_destroy_display(data.mlx);
-	//free(data.mlx);
 	return (0);
 }
