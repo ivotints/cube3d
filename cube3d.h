@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 17:50:43 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 22:26:41 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,11 @@
 # include "minilibx-linux/mlx.h"
 # include "libft/libft.h"
 
+# define PROGRAM_NAME "cube3d"
 # define S_WIDTH 1280
 # define S_HEIGHT 1024
+# define TRUE 1
+# define FALSE 0
 # define ON_KEYDOWN 2
 # define ON_EXPOSE 12
 # define ON_DESTROY 17
@@ -51,13 +54,6 @@
 //numerical errorc
 # define MALLOC_ERROR 1
 
-
-typedef struct	s_mlx_data
-{
-	void	*mlx;
-	void	*win;
-}	t_mlx_data;
-
 typedef struct	s_img_data
 {
 	void	*img;
@@ -74,7 +70,16 @@ typedef struct s_all_data
 	void		*win;
 	int			ceiling_color;
 	int			floor_color;
+	int			player_xy[2];
 }	t_all_data;
+
+
+int	create_trgb(int t, int r, int g, int b);
+unsigned char	get_separate_trgb(int trgb, char color);
+void	img_paint_floor_ceiling(t_all_data *data);
+void	img_paint_circle(t_img_data *data, int *xyr, int color);
+void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color);
+void	my_mlx_pixel_put(t_img_data *data, int x, int y, int color);
 
 
 #endif

@@ -6,7 +6,7 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/07/31 02:26:36 by ivotints         ###   ########.fr        #
+#    Updated: 2024/08/01 22:27:55 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,18 +16,22 @@ LIBS		= -lft -lmlx -lm -lX11 -lXext -I$(PATH_MLX)
 FLAGS		= -L./libft -L$(PATH_MLX)
 OBJ_DIR		= obj
 OBJS		= $(SRCS:%.c=$(OBJ_DIR)/%.o)
-SRCS		= main.c
+SRCS		= main.c get_separate_trgb.c img_paint_floor_ceiling.c \
+			img_paint_circle.c img_paint_rectangle.c my_mlx_pixel_put.c
+
+INCLUDE		= -I ./ -I ./includes
 PATH_FT		= libft/
 PATH_MLX	= minilibx-linux/
 LIBFT_A		= libft/libft.a
 LIBMLX_A	= minilibx-linux/libmlx.a
 RM			= rm -rf
+VPATH		= imglib
 #FLAGS		= -I$(PATH_MLX) -lbsd -lXext -lX11 -Wl,-rpath=./$(PATH_MLX)/
 
 all: $(NAME)
 
 $(OBJ_DIR)/%.o: %.c
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
 $(NAME): $(LIBFT_A) $(LIBMLX_A) $(OBJ_DIR) $(OBJS)
 	@$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LIBS) $(FLAGS)

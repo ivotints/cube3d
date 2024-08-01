@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 18:10:07 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/01 22:30:21 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,441 +92,8 @@ int	main(int ac, char **av)
 }
  */
 
-void	my_mlx_pixel_put(t_img_data *data, int x, int y, int color)
-{
-	char	*dst;
-
-	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	*(unsigned int *)dst = color;
-}
-
-void	img_paint_all(t_img_data *data, int color)
-{
-	int	x;
-	int	y;
-
-	y = 0;
-	while (y < S_HEIGHT)
-	{
-		x = 0;
-		while (x < S_WIDTH)
-		{
-			my_mlx_pixel_put(data, x, y, color);
-			x++;
-		}
-		y++;
-	}
-}
-
-void	img_paint_square(t_img_data *data, int color, int x, int y, int side)
-{
-	int	i;
-	int	j;
-
-	j = y;
-	while (j < y + side)
-	{
-		i = x;
-		while (i < x + side)
-		{
-			my_mlx_pixel_put(data, i, j, color);
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_circle(t_img_data *data, int color, int x, int y, double radius)
-{
-	int	i;
-	int	j;
-	double	distance;
-
-	j = y - radius;
-	while (j < y + radius)
-	{
-		i = x - radius;
-		while (i < x + radius)
-		{
-			distance = sqrt(pow(x - i, 2) + pow(y - j, 2));
-			if (distance < radius)
-			{
-				my_mlx_pixel_put(data, i, j, color);
-			}
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_triangle(t_img_data *data, int color, double x, double y, double side)
-{
-	double	i;
-	double	j;
-	double	median;
-
-	j = y;
-	median = sqrt(pow(side, 2) - pow(side / 2, 2));
-	while (j < y + median)
-	{
-		i = x - side / 2;
-		while (i < x + side / 2)
-		{
-			if (i >= x - ((j - y) / median) * (side / 2)
-				&& i <= x + ((j - y) / median) * (side / 2))
-			{
-				my_mlx_pixel_put(data, i, j, color);
-			}
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_rtriangle(t_img_data *data, int color, double x, double y, double side)
-{
-	double	i;
-	double	j;
-	double	median;
-
-	j = y;
-	median = sqrt(pow(side, 2) - pow(side / 2, 2));
-	while (j < y + median)
-	{
-		i = x - side / 2;
-		while (i < x + side / 2)
-		{
-			if (i >= x - (1 - (j - y) / median) * (side / 2)
-				&& i <= x + (1 - (j - y) / median) * (side / 2))
-			{
-				my_mlx_pixel_put(data, i, j, color);
-			}
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_hexagon(t_img_data *data, int color, double x, double y, double side)
-{
-	double	triangle_median;
-
-	triangle_median = sqrt(pow(side, 2) - pow(side / 2, 2));
-	img_paint_triangle(data, color, x, y, side);
-	img_paint_triangle(data, color, x - side / 2, y - triangle_median, side);
-	img_paint_triangle(data, color, x + side / 2, y - triangle_median, side);
-	img_paint_rtriangle(data, color, x, y - triangle_median, side);
-	img_paint_rtriangle(data, color, x + side / 2, y, side);
-	img_paint_rtriangle(data, color, x - side / 2, y, side);
-}
-
-void	img_paint_all_gradient(t_img_data *data, int color1, int color2)
-{
-	int x, y;
-	double RGB1[3], RGB2[3], deltaRGB[3], currentRGB[3];
-	int color;
-
-	RGB1[0] = (color1 >> 16) & 0xFF;
-	RGB1[1] = (color1 >> 8) & 0xFF;
-	RGB1[2] = color1 & 0xFF;
-	RGB2[0] = (color2 >> 16) & 0xFF;
-	RGB2[1] = (color2 >> 8) & 0xFF;
-	RGB2[2] = color2 & 0xFF;
-
-	deltaRGB[0] = (RGB2[0] - RGB1[0]) / (double)S_HEIGHT;
-	deltaRGB[1] = (RGB2[1] - RGB1[1]) / (double)S_HEIGHT;
-	deltaRGB[2] = (RGB2[2] - RGB1[2]) / (double)S_HEIGHT;
-
-	y = 0;
-	color = color1;
-	while (y < S_HEIGHT)
-	{
-		x = 0;
-		currentRGB[0] = RGB1[0] + deltaRGB[0] * y;
-		currentRGB[1] = RGB1[1] + deltaRGB[1] * y;
-		currentRGB[2] = RGB1[2] + deltaRGB[2] * y;
-		color = ((int)currentRGB[0] << 16) | ((int)currentRGB[1] << 8) | (int)currentRGB[2];
-		while (x < S_WIDTH)
-		{
-			my_mlx_pixel_put(data, x, y, color);
-			x++;
-		}
-		y++;
-	}
-}
-
-int	img_gradient_color(int *col_start, int *col_end, double relation)
-{
-	int	deltaRGB[3];
-	int	resultRGB[3];
-
-	deltaRGB[0] = col_end[0] - col_start[0];
-	deltaRGB[1] = col_end[1] - col_start[1];
-	deltaRGB[2] = col_end[2] - col_start[2];
-
-	resultRGB[0] = col_start[0] + (int)(deltaRGB[0] * relation);
-	resultRGB[1] = col_start[1] + (int)(deltaRGB[1] * relation);
-	resultRGB[2] = col_start[2] + (int)(deltaRGB[2] * relation);
-
-	return (resultRGB[0] << 16 | resultRGB[1] << 8 | resultRGB[2]);
-}
-
-//j is y_current - y_start
-//size is y_last - y_start
-int	img_rainbow_color(double j, double size)
-{
-	int	red[3] = {232, 20, 22};
-	int	orange[3] = {255, 165, 0};
-	int	yellow[3] = {250, 235, 54};
-	int	green[3] = {121, 195, 20};
-	int	blue[3] = {72, 125, 231};
-	int	indigo[3] = {75, 54, 157};
-	int	violet[3] = {112, 54, 157};
-	size = size / 6;
-
-	if (j < size)
-		return(img_gradient_color(red, orange, j / size));
-	if (j < size * 2)
-		return(img_gradient_color(orange, yellow, (j - size) / size));
-	if (j < size * 3)
-		return(img_gradient_color(yellow, green, (j - size * 2) / size));
-	if (j < size * 4)
-		return(img_gradient_color(green, blue, (j - size * 3) / size));
-	if (j < size * 5)
-		return(img_gradient_color(blue, indigo, (j - size * 4) / size));
-	return(img_gradient_color(indigo, violet, (j - size * 5) / size));
-}
-
-void	img_paint_ranbow_square(t_img_data *data, int x, int y, int side)
-{
-	int	i;
-	int	j;
-
-	j = y;
-	while (j < y + side)
-	{
-		i = x;
-		while (i < x + side)
-		{
-			my_mlx_pixel_put(data, i, j, img_rainbow_color(j - y, side));
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_checkered_pattern(t_img_data *data, int color1, int color2, int side)
-{
-	int	i;
-	int	j;
-
-	j = 0;
-	while (j < S_HEIGHT)
-	{
-		i = 0;
-		while (i < S_WIDTH)
-		{
-			if (i % (2 * side) < side && j % (2 * side) < side)
-				img_paint_square(data, color1, i, j, side);
-			else if (i % (2 * side) >= side && j % (2 * side) >= side)
-				img_paint_square(data, color1, i, j, side);
-			else
-				img_paint_square(data, color2, i, j, side);
-			i += side;
-		}
-		j += side;
-	}
-}
-
-t_img_data	*img_chess_texture(void *mlx_ptr, int col_1, int col_2, int side)
-{
-	t_img_data	*img;
-
-	img = malloc(sizeof(t_img_data));
-	img->img = mlx_new_image(mlx_ptr, S_WIDTH, S_HEIGHT);
-	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length,
-								&img->endian);
-	img_paint_checkered_pattern(img, col_1, col_2, side);
-	return (img);
-}
-
-int	img_get_color(t_img_data *data, int x, int y)
-{
-	int		color;
-	char	*dst;
-
-	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	color = *(unsigned int *)dst;
-	return (color);
-}
-
-
-void	img_paint_circle_texture(t_img_data *img, int x, int y, int radius, t_img_data *texture)
-{
-	int		i;
-	int		j;
-	double	distance;
-	int		color;
-
-	j = y - radius;
-	while (j < y + radius)
-	{
-		i = x - radius;
-		while (i < x + radius)
-		{
-			distance = sqrt(pow(x - i, 2) + pow(y - j, 2));
-			if (distance < radius)
-			{
-				color = img_get_color(texture, i, j);
-				my_mlx_pixel_put(img, i, j, color);
-			}
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_noise(t_img_data *data, int delta)
-{
-	int	x;
-	int	y;
-	int	color;
-	int	RGB[6];
-
-	if (delta < 1)
-		return ;
-	y = 0;
-	while (y < S_HEIGHT)
-	{
-		x = 0;
-		while (x < S_WIDTH)
-		{
-			color = img_get_color(data, x, y);
-			RGB[0] = ((color >> 16) & 0xFF) - delta + (rand() % (delta * 2));
-			if (RGB[0] > 0xFF)
-				RGB[0] = 0xFF;
-			if (RGB[0] < 0)
-				RGB[0] = 0;
-			RGB[1] = ((color >> 8) & 0xFF) - delta + (rand() % (delta * 2));
-			if (RGB[1] > 0xFF)
-				RGB[1] = 0xFF;
-			if (RGB[1] < 0)
-				RGB[1] = 0;
-			RGB[2] = (color & 0xFF) - delta + (rand() % (delta * 2));
-			if (RGB[2] > 0xFF)
-				RGB[2] = 0xFF;
-			if (RGB[2] < 0)
-				RGB[2] = 0;
-			color = (RGB[0] << 16) | (RGB[1] << 8) | (RGB[2]);
-			my_mlx_pixel_put(data, x, y, color);
-			x++;
-		}
-		y++;
-	}
-}
-
-//Returns the requested value which can be t, r, g or b
-unsigned char	get_separate_trgb(int trgb, char color)
-{
-	if (color == 't')
-		return (((unsigned char *)&trgb)[3]);
-	if (color == 'r')
-		return (((unsigned char *)&trgb)[2]);
-	if (color == 'g')
-		return (((unsigned char *)&trgb)[1]);
-	if (color == 'b')
-		return (((unsigned char *)&trgb)[0]);
-	write(2, "Wrong input in get_separate_trgb()\n", 36);
-	return (0);
-}
-
-int	create_trgb(int t, int r, int g, int b)
-{
-	return (t << 24 | r << 16 | g << 8 | b);
-}
-
-int	add_shade(double dim, int color)
-{
-	unsigned char	RGB[3];
-
-	RGB[0] = get_separate_trgb(color, 'r');
-	RGB[1] = get_separate_trgb(color, 'g');
-	RGB[2] = get_separate_trgb(color, 'b');
-	RGB[0] = RGB[0] - (RGB[0]) * dim;
-	RGB[1] = RGB[1] - (RGB[1]) * dim;
-	RGB[2] = RGB[2] - (RGB[2]) * dim;
-	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
-}
-
-int	get_opposite(int color)
-{
-	unsigned char	RGB[3];
-
-	RGB[0] = get_separate_trgb(color, 'r');
-	RGB[1] = get_separate_trgb(color, 'g');
-	RGB[2] = get_separate_trgb(color, 'b');
-	RGB[0] = 0xFF - RGB[0];
-	RGB[1] = 0xFF - RGB[1];
-	RGB[2] = 0xFF - RGB[2];
-	return (create_trgb(0, RGB[0], RGB[1], RGB[2]));
-}
-
-void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color)
-{
-	int	i;
-	int	j;
-	int	x;
-	int	y;
-
-	j = coordinates4[1];
-	x = coordinates4[2];
-	y = coordinates4[3];
-	while (j < y)
-	{
-		i = coordinates4[0];
-		while (i < x)
-		{
-			my_mlx_pixel_put(data->img, i, j, color);
-			i++;
-		}
-		j++;
-	}
-}
-
-void	img_paint_floor_ceiling(t_all_data *data)
-{
-	int	coordinates[4];
-
-	coordinates[0] = 0;
-	coordinates[1] = 0;
-	coordinates[2] = S_WIDTH;
-	coordinates[3] = S_HEIGHT / 2;
-	img_paint_rectangle(data, coordinates, data->ceiling_color);
-	coordinates[0] = 0;
-	coordinates[1] = S_HEIGHT / 2;
-	coordinates[2] = S_WIDTH;
-	coordinates[3] = S_HEIGHT;
-	img_paint_rectangle(data, coordinates, data->floor_color);
-}
-
-int	handle_input(int keysym, t_all_data *data)
-{
-	if(keysym == XK_Escape)
-	{
-		printf("The %d key (ESC) has been pressed\n\n", keysym);
-		mlx_destroy_image(data->mlx, data->img->img);
-		mlx_destroy_window(data->mlx, data->win);
-		mlx_destroy_display(data->mlx);
-		free(data->mlx);
-		exit(0);
-	}
-	printf("The %d key has been pressed\n\n", keysym);
-	return (0);
-}
-
 int	handle_destroy(t_all_data *data)
 {
-	printf("Cross is pressed\n");
 	mlx_destroy_image(data->mlx, data->img->img);
 	mlx_destroy_window(data->mlx, data->win);
 	mlx_destroy_display(data->mlx);
@@ -534,25 +101,81 @@ int	handle_destroy(t_all_data *data)
 	exit(0);
 }
 
+int	is_movement_key(int key)
+{
+	if (key == XK_W || key == XK_w)
+		return (TRUE);
+	if (key == XK_A || key == XK_a)
+		return (TRUE);
+	if (key == XK_S || key == XK_s)
+		return (TRUE);
+	if (key == XK_D || key == XK_d)
+		return (TRUE);
+	return (FALSE);
+}
+
+void	change_player_xy(t_all_data *data, int key)
+{
+	if (key == XK_W || key == XK_w)
+		data->player_xy[1] -= 1;
+	if (key == XK_A || key == XK_a)
+		data->player_xy[0] -= 1;
+	if (key == XK_S || key == XK_s)
+		data->player_xy[1] += 1;
+	if (key == XK_D || key == XK_d)
+		data->player_xy[0] += 1;
+}
+
+int	handle_input(int key, t_all_data *data)
+{
+	if (key == XK_Escape)
+	{
+		printf("The %d key (ESC) has been pressed\n\n", key);
+		handle_destroy(data);
+	}
+	if (is_movement_key(key))
+		change_player_xy(data, key);
+	printf("The %d key has been pressed\n\n", key);
+	return (0);
+}
+
+int	render_next_frame(t_all_data *data)
+{
+	int	ijr[3];
+	int	color;
+
+	ijr[0] = data->player_xy[0];
+	ijr[1] = data->player_xy[1];
+	ijr[2] = 20;
+	color = create_trgb(0, 255, 255, 51);
+	img_paint_floor_ceiling(data);
+	img_paint_circle(data->img, ijr, color);
+	mlx_put_image_to_window(data->mlx, data->win, data->img->img, 0, 0);
+	return (0);
+}
+
+void	init_data(t_all_data *data, t_img_data *img)
+{
+	data->img = img;
+	data->ceiling_color = create_trgb(0, 51, 153, 255);
+	data->floor_color = create_trgb(0, 64, 64, 64);
+	data->mlx = mlx_init();
+	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
+	img->img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
+	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
+	data->player_xy[0] = 100;
+	data->player_xy[1] = 100;
+}
+
 int	main(void)
 {
 	t_all_data	data;
 	t_img_data	img;
 
-	data.ceiling_color = create_trgb(0, 51, 153, 255);
-	data.floor_color = create_trgb(0, 64, 64, 64);
-	data.mlx = mlx_init();
-	data.win = mlx_new_window(data.mlx, S_WIDTH, S_HEIGHT, "cube3d");
-	img.img = mlx_new_image(data.mlx, S_WIDTH, S_HEIGHT);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length,
-								&img.endian);
-	data.img = &img;
-	img_paint_floor_ceiling(&data);
-
-	mlx_put_image_to_window(data.mlx, data.win, img.img, 0, 0);
+	init_data(&data, &img);
 	mlx_key_hook(data.win, handle_input, &data);
 	mlx_hook(data.win, 17, 0, handle_destroy, &data);
-
+	mlx_loop_hook(data.mlx, render_next_frame, &data);
 	mlx_loop(data.mlx);
 	return (0);
 }
