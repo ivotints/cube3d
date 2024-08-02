@@ -6,7 +6,7 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/08/01 22:27:55 by ivotints         ###   ########.fr        #
+#    Updated: 2024/08/02 03:05:01 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,8 @@ FLAGS		= -L./libft -L$(PATH_MLX)
 OBJ_DIR		= obj
 OBJS		= $(SRCS:%.c=$(OBJ_DIR)/%.o)
 SRCS		= main.c get_separate_trgb.c img_paint_floor_ceiling.c \
-			img_paint_circle.c img_paint_rectangle.c my_mlx_pixel_put.c
+			img_paint_circle.c img_paint_rectangle.c my_mlx_pixel_put.c \
+			img_get_color.c img_paint_noise.c
 
 INCLUDE		= -I ./ -I ./includes
 PATH_FT		= libft/

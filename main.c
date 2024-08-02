@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 23:07:23 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/02 03:12:35 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,14 +126,58 @@ void	update_player_position(t_all_data *data)
 		data->player_xy[0] += 1;
 }
 
+int	get_color_texture(t_img_data *texture, int *xyr, int i, int j)
+{
+	int	x;
+	int	y;
+	int	color;
+	double x_ratio;
+	double y_ratio;
+
+	x_ratio = (double)(i - xyr[0] + xyr[2]) / (xyr[2] * 2);
+	y_ratio = (double)(j - xyr[1] + xyr[2]) / (xyr[2] * 2);
+	x = (texture->line_length / 4) * x_ratio;
+	y = (texture->line_length / 4) * y_ratio;
+	color = img_get_color(texture, x, y);
+	return (color);
+}
+
+void	img_paint_square_texture(t_all_data *data, int *xyr, void *img)
+{
+	t_img_data	tmp;
+	int			i;
+	int			j;
+	int			color;
+
+	tmp.img = img;
+	tmp.addr = mlx_get_data_addr(img, &tmp.bits_per_pixel, &tmp.line_length, &tmp.endian);
+	i = xyr[0] - xyr[2];
+	while (i < xyr[0] + xyr[2])
+	{
+		j = xyr[1] - xyr[2];
+		while (j < xyr[1] + xyr[2])
+		{
+			color = get_color_texture(&tmp, xyr, i, j);
+			my_mlx_pixel_put(data->img, i, j, color);
+			j++;
+		}
+		i++;
+	}
+	mlx_destroy_image(data->mlx, img);
+}
+
 int	render_next_frame(t_all_data *data)
 {
 	int	xyr[3];
 	int	color;
+	int	img_wh[2];
 
 	update_player_position(data);
 	img_paint_floor_ceiling(data);
-
+	xyr[0] = 700;
+	xyr[1] = 500;
+	xyr[2] = 200;
+	img_paint_square_texture(data, xyr, mlx_xpm_file_to_image(data->mlx, "textures/South.xpm", img_wh, &img_wh[1]));
 	xyr[0] = data->player_xy[0];
 	xyr[1] = data->player_xy[1];
 	xyr[2] = 10;

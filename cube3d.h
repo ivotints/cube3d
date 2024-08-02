@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 22:57:00 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/02 03:04:36 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # define PROGRAM_NAME "cube3d"
 # define S_WIDTH 1280
 # define S_HEIGHT 1024
+# define TEXTURE_SIZE 384
 # define TRUE 1
 # define FALSE 0
 # define ON_KEYDOWN 2
@@ -77,12 +78,13 @@ typedef struct s_all_data
 }	t_all_data;
 
 
-int	create_trgb(int t, int r, int g, int b);
+int				create_trgb(int t, int r, int g, int b);
 unsigned char	get_separate_trgb(int trgb, char color);
-void	img_paint_floor_ceiling(t_all_data *data);
-void	img_paint_circle(t_img_data *data, int *xyr, int color);
-void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color);
-void	my_mlx_pixel_put(t_img_data *data, int x, int y, int color);
-
+void			img_paint_floor_ceiling(t_all_data *data);
+void			img_paint_circle(t_img_data *data, int *xyr, int color);
+void			img_paint_rectangle(t_all_data *data, int *coordinates4, int color);
+void			my_mlx_pixel_put(t_img_data *data, int x, int y, int color);
+int				img_get_color(t_img_data *data, int x, int y);
+void			img_paint_noise(t_img_data *data, int delta);
 
 #endif
