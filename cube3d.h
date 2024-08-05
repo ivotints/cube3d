@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/02 03:04:36 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/05 02:32:25 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@
 # include "libft/libft.h"
 
 # define PROGRAM_NAME "cube3d"
-# define S_WIDTH 1280
-# define S_HEIGHT 1024
+# define S_WIDTH 800
+# define S_HEIGHT 600
 # define TEXTURE_SIZE 384
 # define TRUE 1
 # define FALSE 0
@@ -73,8 +73,30 @@ typedef struct s_all_data
 	void		*win;
 	int			ceiling_color;
 	int			floor_color;
-	int			player_xy[2];
-	int			key_state[256];
+	double		posX;
+	double		posY;
+	double		dirX;
+	double		dirY;
+	double		planeX;
+	double		planeY;
+	double		time;
+	double		oldTime;
+	double		cameraX;
+	double		rayDirX;
+	double		rayDirY;
+	int			mapX;
+	int			mapY;
+	double		sideDistX;
+	double		sideDistY;
+	double		deltaDistX;
+	double		deltaDistY;
+	double		perpWallDist;
+	int			stepX;
+	int			stepY;
+	int			hit;
+	int			side;
+
+
 }	t_all_data;
 
 

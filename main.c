@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/02 03:12:35 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/05 02:48:39 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,39 @@ int	main(int ac, char **av)
 }
  */
 
+int	mapWidth = 24;
+int	mapHeight = 24;
+
+char	worldMap[24][24] =
+{
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,0,1,0,1,0,0,0,1},
+  {1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1},
+  {1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,1,1,0,1,1,0,0,0,0,1,0,1,0,1,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
+
+
+
 int	handle_destroy(t_all_data *data)
 {
 	mlx_destroy_image(data->mlx, data->img->img);
@@ -126,45 +159,77 @@ void	update_player_position(t_all_data *data)
 		data->player_xy[0] += 1;
 }
 
-int	get_color_texture(t_img_data *texture, int *xyr, int i, int j)
+void	calc_ray_position(t_all_data *data)
 {
 	int	x;
-	int	y;
-	int	color;
-	double x_ratio;
-	double y_ratio;
 
-	x_ratio = (double)(i - xyr[0] + xyr[2]) / (xyr[2] * 2);
-	y_ratio = (double)(j - xyr[1] + xyr[2]) / (xyr[2] * 2);
-	x = (texture->line_length / 4) * x_ratio;
-	y = (texture->line_length / 4) * y_ratio;
-	color = img_get_color(texture, x, y);
-	return (color);
-}
-
-void	img_paint_square_texture(t_all_data *data, int *xyr, void *img)
-{
-	t_img_data	tmp;
-	int			i;
-	int			j;
-	int			color;
-
-	tmp.img = img;
-	tmp.addr = mlx_get_data_addr(img, &tmp.bits_per_pixel, &tmp.line_length, &tmp.endian);
-	i = xyr[0] - xyr[2];
-	while (i < xyr[0] + xyr[2])
+	x = 0;
+	while (x < S_WIDTH)
 	{
-		j = xyr[1] - xyr[2];
-		while (j < xyr[1] + xyr[2])
+		data->cameraX = 2 * x / (double)S_WIDTH - 1;
+		data->rayDirX = data->dirX + data->planeX * data->cameraX;
+		data->rayDirY = data->dirY + data->planeY * data->cameraX;
+		data->mapX = (int)data->posX;
+		data->mapY = (int)data->posY;
+		data->deltaDistX = 1e30;
+		if (data->rayDirX != 0)
+			data->deltaDistX = fabs(1 / data->rayDirX);
+		data->deltaDistY = 1e30;
+		if (data->rayDirY != 0)
+			data->deltaDistY = fabs(1 / data->rayDirY);
+		data->hit = 0;
+		if (data->rayDirX < 0)
 		{
-			color = get_color_texture(&tmp, xyr, i, j);
-			my_mlx_pixel_put(data->img, i, j, color);
-			j++;
+			data->stepX = -1;
+			data->sideDistX = (data->posX - data->mapX) * data->deltaDistX;
 		}
-		i++;
+		else
+		{
+			data->stepX = 1;
+			data->sideDistX = (data->mapX + 1.0 - data->posX) * data->deltaDistX;
+		}
+		if (data->rayDirY < 0)
+		{
+			data->stepY = -1;
+			data->sideDistY = (data->posY - data->mapY) * data->deltaDistY;
+		}
+		else
+		{
+			data->stepY = 1;
+			data->sideDistY = (data->mapY + 1.0 - data->posY) * data->deltaDistY;
+		}
+		while (data->hit == 0)
+		{
+			if (data->sideDistX < data->side)
+			{
+				data->sideDistX += data->deltaDistX;
+				data->mapX += data->stepX;
+				data->side = 0;
+			}
+			else
+			{
+				data->sideDistY += data->deltaDistY;
+				data->mapY += data->stepY;
+				data->side = 1;
+			}
+			if (worldMap[data->mapX][data->mapY] > 0)
+				data->hit = 1;
+		}
+		if (data->side == 0)
+
+
+
+
+
+
+
+
+
+
+		x++;
 	}
-	mlx_destroy_image(data->mlx, img);
 }
+
 
 int	render_next_frame(t_all_data *data)
 {
@@ -172,12 +237,13 @@ int	render_next_frame(t_all_data *data)
 	int	color;
 	int	img_wh[2];
 
+	calc_ray_position(data);
 	update_player_position(data);
 	img_paint_floor_ceiling(data);
 	xyr[0] = 700;
 	xyr[1] = 500;
 	xyr[2] = 200;
-	img_paint_square_texture(data, xyr, mlx_xpm_file_to_image(data->mlx, "textures/South.xpm", img_wh, &img_wh[1]));
+	img_paint_square_texture(data, xyr, mlx_xpm_file_to_image(data->mlx, "textures/South64.xpm", img_wh, &img_wh[1]));
 	xyr[0] = data->player_xy[0];
 	xyr[1] = data->player_xy[1];
 	xyr[2] = 10;
@@ -187,7 +253,7 @@ int	render_next_frame(t_all_data *data)
 	return (0);
 }
 
-void	init_data(t_all_data *data, t_img_data *img)
+void	init_data(t_all_data *data, t_img_data *img, char *file)
 {
 	int	i;
 
@@ -198,16 +264,19 @@ void	init_data(t_all_data *data, t_img_data *img)
 	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
 	img->img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
 	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
-	data->player_xy[0] = 10;
-	data->player_xy[1] = 10;
-	i = 0;
-	while (i < 256)
-		data->key_state[i++] = FALSE;
+	data->posX = 22;
+	data->posY = 12;
+	data->dirX = -1;
+	data->dirY = 0;
+	data->planeX = 0;
+	data->planeY = 0.66;
+	data->time = 0;
+	data->oldTime = 0;
 }
 
 int	handle_keypress(int	key, t_all_data *data)
 {
-	printf("The %d key has been pressed\n\n", key);
+	//printf("The %d key has been pressed\n\n", key);
 	if (key == XK_Escape)
 		handle_destroy(data);
 	if (is_movement_key(key))
@@ -222,13 +291,12 @@ int	handle_keyrelease(int	key, t_all_data *data)
 	return (0);
 }
 
-
-int	main(void)
+int	main(int ac, char **av)
 {
 	t_all_data	data;
 	t_img_data	img;
 
-	init_data(&data, &img);
+	init_data(&data, &img, av[1]);
 	mlx_hook(data.win, 17, 0, handle_destroy, &data);
 	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, handle_keypress, &data);
 	mlx_hook(data.win, ON_KEYUP, KeyReleaseMask, handle_keyrelease, &data);
