@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/05 18:07:47 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/05 19:26:35 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,7 +157,21 @@ void	update_player_position(t_all_data *data)
 	{
 		if (worldMap[(int)(data->posX - data->dirX * data->moveSpeed)][(int)(data->posY)] == 0)
 			data->posX -= data->dirX * data->moveSpeed;
+		if (worldMap[(int)(data->posX)][(int)(data->posY - data->dirY * data->moveSpeed)] == 0)
+			data->posY -= data->dirY * data->moveSpeed;
+	}
+	if (data->A)
+	{
+		if (worldMap[(int)(data->posX + data->dirX * data->moveSpeed)][(int)(data->posY)] == 0)
+			data->posX += data->dirX * data->moveSpeed;
 		if (worldMap[(int)(data->posX)][(int)(data->posY + data->dirY * data->moveSpeed)] == 0)
+			data->posY += data->dirY * data->moveSpeed;
+	}
+	if (data->D)
+	{
+		if (worldMap[(int)(data->posX - data->dirX * data->moveSpeed)][(int)(data->posY)] == 0)
+			data->posX -= data->dirX * data->moveSpeed;
+		if (worldMap[(int)(data->posX)][(int)(data->posY - data->dirY * data->moveSpeed)] == 0)
 			data->posY -= data->dirY * data->moveSpeed;
 	}
 	if (data->R_rot)
