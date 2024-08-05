@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/05 02:32:25 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/05 17:27:43 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <X11/keysym.h> // XK_Escape
 # include "minilibx-linux/mlx.h"
 # include "libft/libft.h"
+#include <time.h>
 
 # define PROGRAM_NAME "cube3d"
 # define S_WIDTH 800
@@ -95,7 +96,21 @@ typedef struct s_all_data
 	int			stepY;
 	int			hit;
 	int			side;
-
+	int			lineHeight;
+	int			drawStart;
+	int			drawEnd;
+	int			color;
+	double		frameTime;
+	double		moveSpeed;
+	double		rotSpeed;
+	int			D;
+	int			W;
+	int			A;
+	int			S;
+	int			L_rot;
+	int			R_rot;
+	double		oldDirX;
+	double		oldPlaneX;
 
 }	t_all_data;
 
