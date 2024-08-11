@@ -6,7 +6,7 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/27 16:23:36 by ivotints          #+#    #+#              #
-#    Updated: 2024/07/30 22:42:36 by ivotints         ###   ########.fr        #
+#    Updated: 2024/08/05 23:19:10 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,8 @@ SRCS		= ft_isalpha.c ft_isdigit.c ft_isalnum.c ft_isascii.c \
 			ft_strnstr.c ft_atoi.c ft_strrchr.c ft_substr.c \
 			ft_strjoin.c ft_strtrim.c ft_split.c ft_itoa.c \
 			ft_strmapi.c ft_striteri.c ft_putchar_fd.c \
-			ft_putstr_fd.c ft_putendl_fd.c ft_putnbr_fd.c ft_strcmp.c
+			ft_putstr_fd.c ft_putendl_fd.c ft_putnbr_fd.c ft_strcmp.c \
+			get_next_line.c
 SRCSB		= ft_lstnew_bonus.c ft_lstadd_front_bonus.c \
 			ft_lstsize_bonus.c ft_lstlast_bonus.c \
 			ft_lstadd_back_bonus.c ft_lstdelone_bonus.c \
@@ -37,7 +38,7 @@ all: ${NAME}
 $(OBJ_DIR):
 	@mkdir -p $@
 
-$(OBJ_DIR)/%.o: %.c $(OBJ_DIR) 
+$(OBJ_DIR)/%.o: %.c $(OBJ_DIR)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 ${NAME}: ${OBJS}

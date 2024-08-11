@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/22 09:56:23 by ivotints          #+#    #+#             */
-/*   Updated: 2024/07/30 01:30:22 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/05 23:18:43 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,12 @@
 # include <unistd.h>
 # include <stdio.h>
 # include <string.h>
+//# include <fcntl.h>
+//# include <limits.h>
+
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 256
+# endif
 
 typedef struct s_list
 {
@@ -68,5 +74,7 @@ t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 t_list	*ft_lstnew(void *content);
 int		ft_lstsize(t_list *lst);
 int	ft_strcmp(const char *s1, const char *s2);
+char	*get_next_line(int fd);
+
 
 #endif

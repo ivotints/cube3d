@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/05 17:27:43 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/11 03:54:01 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,10 @@
 # define ResizeRequest 25
 # define KeyPressMask (1L<<0)
 # define KeyReleaseMask (1L<<1)
+# define MAP_EMPTY 10
 
+# define FAILURE 0
+# define SUCCESS 1
 
 
 //colors
@@ -55,8 +58,15 @@
 # define ERRTOOHIGH "Too many arguments. Please enter only one map path"
 
 
-//numerical errorc
+//numerical errors
 # define MALLOC_ERROR 1
+
+typedef struct s_line
+{
+	char			*line;
+	int				size;
+	struct s_line	*next;
+}	t_line;
 
 typedef struct	s_img_data
 {
@@ -65,11 +75,57 @@ typedef struct	s_img_data
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
+	int		w;
+	int		h;
 }	t_img_data;
+
+typedef struct	s_keys
+{
+	char	W;
+	char	A;
+	char	S;
+	char	D;
+	char	L_rot;
+	char	R_rot;
+}	t_keys;
+
+typedef struct s_player
+{
+	double	view_dir;
+	double	move_y;
+	double	move_x;
+	double	motion_y;
+	double	motion_x;
+	double	motion_view_dir;
+}	t_player;
+
+typedef struct s_map
+{
+	int	x;
+	int	y;
+	char	*map;
+}	t_map;
+
+typedef struct s_vector
+{
+	int	x;
+	int	y;
+}	t_vector;
+
+
+typedef struct s_textures
+{
+	t_img_data	NO;
+	t_img_data	SO;
+	t_img_data	WE;
+	t_img_data	EA;
+	int			F;
+	int			C;
+}	t_textures;
 
 typedef struct s_all_data
 {
-	t_img_data	*img;
+	t_img_data	img;
 	void		*mlx;
 	void		*win;
 	int			ceiling_color;
@@ -103,16 +159,16 @@ typedef struct s_all_data
 	double		frameTime;
 	double		moveSpeed;
 	double		rotSpeed;
-	int			D;
-	int			W;
-	int			A;
-	int			S;
-	int			L_rot;
-	int			R_rot;
 	double		oldDirX;
 	double		oldPlaneX;
 
+	t_player	player;
+	t_keys		keys;
+	t_textures	textures;
+	t_map		map;
 }	t_all_data;
+
+
 
 
 int				create_trgb(int t, int r, int g, int b);
