@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/11 03:54:01 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/12 22:27:44 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,9 @@
 # define KeyPressMask (1L<<0)
 # define KeyReleaseMask (1L<<1)
 # define MAP_EMPTY 10
+# define MAP_AIR 0
+# define MAP_BLOCK 1
+# define PI 3.14159265358979323846
 
 # define FAILURE 0
 # define SUCCESS 1
@@ -91,12 +94,16 @@ typedef struct	s_keys
 
 typedef struct s_player
 {
+	char	is_set;
+	double	pos_x;
+	double	pos_y;
 	double	view_dir;
 	double	move_y;
 	double	move_x;
 	double	motion_y;
 	double	motion_x;
 	double	motion_view_dir;
+	//t_keys	keys;
 }	t_player;
 
 typedef struct s_map
@@ -166,6 +173,8 @@ typedef struct s_all_data
 	t_keys		keys;
 	t_textures	textures;
 	t_map		map;
+	double		fov;
+	double		*depth;
 }	t_all_data;
 
 

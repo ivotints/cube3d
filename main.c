@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/11 03:59:38 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/12 22:28:02 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ char	worldMap[24][24] =
 
 int	handle_destroy(t_all_data *data)
 {
-	mlx_destroy_image(data->mlx, data->img->img);
+	mlx_destroy_image(data->mlx, data->img.img);
 	mlx_destroy_window(data->mlx, data->win);
 	mlx_destroy_display(data->mlx);
 	free(data->mlx);
@@ -181,7 +181,7 @@ void	vertLine(int x, t_all_data *data)
 {
 	while (data->drawStart <= data->drawEnd)
 	{
-		my_mlx_pixel_put(data->img, x, data->drawStart, data->color);
+		my_mlx_pixel_put(&data->img, x, data->drawStart, data->color);
 		data->drawStart++;
 	}
 }
@@ -312,7 +312,7 @@ int	render_next_frame(t_all_data *data)
 	update_player_condition(data);
 	img_paint_floor_ceiling(data);
 	calc_ray_position(data);
-	mlx_put_image_to_window(data->mlx, data->win, data->img->img, 0, 0);
+	mlx_put_image_to_window(data->mlx, data->win, data->img.img, 0, 0);
 	return (0);
 }
 
@@ -540,6 +540,123 @@ t_map	make_empty(int x, int y)
 	return (map);
 }
 
+t_player	make_player(void)
+{
+	t_player	p;
+
+	p.is_set = TRUE;
+	p.pos_x = 0;
+	p.pos_y = 0;
+	p.view_dir = 0;
+	p.motion_view_dir = 0;
+	p.motion_x = 0;
+	p.motion_y = 0;
+	// p.keys.W = 0;
+	// p.keys.A = 0;
+	// p.keys.S = 0;
+	// p.keys.D = 0;
+	// p.keys.L_rot = 0;
+	// p.keys.R_rot = 0;
+	return (p);
+}
+
+int	set_player(t_all_data *data, char c, int x, int y)
+{
+	int	val;
+
+	if (c == 'E')
+		val = 0;
+	else if (c == 'S')
+		val = 1;
+	else if (c == 'W')
+		val = 2;
+	else if (c == 'N')
+		val = 3;
+	else
+		return (FAILURE);
+	if (data->player.is_set == TRUE)
+		error_msg("Detected multiple player in map.", NULL, data);
+	data->player = make_player();
+	data->player.pos_x = x + 0.5;
+	data->player.pos_y = y + 0.5;
+	data->player.view_dir = PI / 2 * val;
+	return (SUCCESS);
+}
+
+
+int	set_map(t_all_data *data, char c, int x, int y)
+{
+	char	val;
+
+	if (c == '1')
+		val = MAP_BLOCK;
+	else if (c == ' ')
+		val = MAP_EMPTY;
+	else if (c == '0' || set_player(data, c, x, y))
+		val = MAP_AIR;
+	else
+		return (FAILURE);
+	data->map.map[y * data->map.x + x] = val;
+	return (SUCCESS);
+}
+
+char	get_map_value(t_map *map, int x, int y)
+{
+	if (x < 0 || y < 0 || x > map->x || y > map->y)
+		return (MAP_EMPTY);
+	return (map->map[y * map->x + x]);
+}
+
+int	map_flood_fill(t_map *map)
+{
+	int	x;
+	int	y;
+	char	val;
+
+	y = 0;
+	while (y < map->y)
+	{
+		x = 0;
+		while (x < map->x)
+		{
+			val = get_map_value(map, x, y);
+			if (val == MAP_AIR)
+			{
+				if (get_map_value(map, x + 1, y) == MAP_EMPTY
+					|| get_map_value(map, x - 1, y) == MAP_EMPTY
+					|| get_map_value(map, x, y + 1) == MAP_EMPTY
+					|| get_map_value(map, x, y - 1) == MAP_EMPTY)
+					return (FAILURE);
+			}
+			x++;
+		}
+		y++;
+	}
+	return (SUCCESS);
+}
+
+void	load_map(t_all_data *data, t_line *list)
+{
+	int	x;
+	int	y;
+
+	y = 0;
+	while (list)
+	{
+		x = 0;
+		while (x < list->size)
+		{
+			if (!set_map(data, list->line[x], x, y))
+				error_msg("Unknown chars in the map.", &list->line[x], data);
+			x++;
+		}
+		y++;
+		list = list->next;
+	}
+	if (!map_flood_fill(&data->map))
+		error_msg("Map is not closed.", NULL, data);
+}
+
 void	load_data(t_all_data *data, char *file)
 {
 	t_line		*list;
@@ -553,6 +670,7 @@ void	load_data(t_all_data *data, char *file)
 	data->textures.EA.img = NULL;
 	data->textures.C = 0x12345678;
 	data->textures.F = 0x12345678;
+	data->player.is_set = FALSE;
 	while (list)
 	{
 		if (read_identifier(data, list->line) == FAILURE)
@@ -565,7 +683,7 @@ void	load_data(t_all_data *data, char *file)
 	data->map = make_empty(x, y);
 	if (!data->map.map)
 		error_msg("Failed to create map.", NULL, data);
-	return (load_map(data, list));
+	load_map(data, list);
 }
 
 void	init_data(t_all_data *data, int ac, char **av)
@@ -576,20 +694,15 @@ void	init_data(t_all_data *data, int ac, char **av)
 		error_msg(ERRTOOHIGH, NULL, NULL);
 	check_file(av[1]);
 	load_data(data, av[1]);
-
-
-	data->ceiling_color = create_trgb(0, 51, 153, 255);
-	data->floor_color = create_trgb(0, 64, 64, 64);
 	data->mlx = mlx_init();
 	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
-	img->img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
-	img->addr = mlx_get_data_addr(img->img, &img->bits_per_pixel, &img->line_length, &img->endian);
-	data->posX = 22;
-	data->posY = 12;
+	data->img.img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
+	data->img.addr = mlx_get_data_addr(data->img.img, &data->img.bits_per_pixel, &data->img.line_length, &data->img.endian);
+
+
+	//in order to delete.
 	data->dirX = -1;
 	data->dirY = 0;
-	data->planeX = 0;
-	data->planeY = 0.66;
 	data->time = 0;
 	data->keys.W = FALSE;
 	data->keys.A = FALSE;
@@ -635,11 +748,44 @@ int	handle_keyrelease(int key, t_all_data *data)
 	return (0);
 }
 
+void	check_data(t_all_data *data)
+{
+	if (S_HEIGHT < 1 || S_HEIGHT < 1)
+		error_msg("Wrong resolution.", NULL, data);
+	if (S_HEIGHT > 5000 || S_HEIGHT > 5000)
+		error_msg("Wrong resolution. Too big.", NULL, data);
+	if (data->textures.C == 0x12345678)
+		error_msg("Ceiling color is not set.", NULL, data);
+	if (data->textures.F == 0x12345678)
+		error_msg("Floor color is not set.", NULL, data);
+	if (data->player.is_set == FALSE)
+		error_msg("No player in the map.", NULL, data);
+	if (data->textures.EA.img == NULL)
+		error_msg("EA texture is not set.", NULL, data);
+	if (data->textures.WE.img == NULL)
+		error_msg("WE texture is not set.", NULL, data);
+	if (data->textures.NO.img == NULL)
+		error_msg("NO texture is not set.", NULL, data);
+	if (data->textures.SO.img == NULL)
+		error_msg("SO texture is not set.", NULL, data);
+}
+
+void	setup_render(t_all_data *data)
+{
+	data->fov = (double)S_HEIGHT / (double)S_WIDTH;
+	//data->render_distance = 50; /// ???
+	data->depth = malloc(sizeof(double) * S_WIDTH);
+	if (!data->depth)
+		error_msg("Malloc error. setup_render.", NULL, data);
+}
+
 int	main(int ac, char **av)
 {
 	t_all_data	data;
 
 	init_data(&data, ac, av);
+	check_data(&data);
+	setup_render(&data);
 	mlx_hook(data.win, 17, 0, handle_destroy, &data);
 	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, handle_keypress, &data);
 	mlx_hook(data.win, ON_KEYUP, KeyReleaseMask, handle_keyrelease, &data);
