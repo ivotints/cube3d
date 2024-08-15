@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/12 22:27:44 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/15 07:49:09 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@
 # define MAP_AIR 0
 # define MAP_BLOCK 1
 # define PI 3.14159265358979323846
+# define RENDER_DISTANCE 100
 
 # define FAILURE 0
 # define SUCCESS 1
@@ -63,6 +64,12 @@
 
 //numerical errors
 # define MALLOC_ERROR 1
+
+typedef struct s_vec
+{
+	int	x;
+	int	y;
+}	t_vec;
 
 typedef struct s_line
 {
@@ -104,7 +111,52 @@ typedef struct s_player
 	double	motion_x;
 	double	motion_view_dir;
 	//t_keys	keys;
+	double	render_x;
+	double	render_y;
 }	t_player;
+
+typedef struct s_shape
+{
+	int			x;
+	int			y;
+	int			width;
+	int			height;
+	t_img_data	*img;
+}	t_shape;
+
+typedef struct s_rot
+{
+	double		angle;
+	double		cos;
+	double		sin;
+}	t_rot;
+
+typedef struct		s_ray {
+	double			st_cos_x;
+	double			st_cos_y;
+	double			st_sin_x;
+	double			st_sin_y;
+	double			ln_cos;
+	double			ln_sin;
+}					t_ray;
+
+typedef struct s_trace
+{
+	t_shape	line;
+	double	newa;
+	t_rot	rot;
+	double	ref_x;
+	double	ref_y;
+	t_ray	ray;
+	t_ray	step;
+	int		i;
+	t_vec	pos;
+	char	side;
+	double	len;
+	double	offset;
+
+
+}	t_trace;
 
 typedef struct s_map
 {
@@ -113,11 +165,6 @@ typedef struct s_map
 	char	*map;
 }	t_map;
 
-typedef struct s_vector
-{
-	int	x;
-	int	y;
-}	t_vector;
 
 
 typedef struct s_textures

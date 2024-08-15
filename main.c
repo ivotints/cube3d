@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/12 22:28:02 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/15 09:01:29 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,35 +79,6 @@ int	main(int ac, char **av)
 	return (0);
 }
  */
-
-char	worldMap[24][24] =
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1,0,1,0,1,0,0,0,1},
-  {1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,1},
-  {1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,1,1,0,1,1,0,0,0,0,1,0,1,0,1,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-};
-
 
 
 int	handle_destroy(t_all_data *data)
@@ -282,10 +253,29 @@ void	update_view_dir(t_player *player, t_keys *keys)
 
 }
 
+void	collide_x(t_all_data *data)
+{
+	int	side;
+	side = floor(data->player.pos_x + data->player.motion_x);
+	if (get_map_value(&data->map, side, floor(data->player.pos_y)) != MAP_BLOCK)
+		data->player.pos_x += data->player.motion_x;
+	else
+		data->player.motion_x = 0;
+}
+
 void	collide_y(t_all_data *data)
 {
 	int	side;
-	side = floor()
+	side = floor(data->player.pos_y + data->player.motion_y);
+	if (get_map_value(&data->map, floor(data->player.pos_x), side) != MAP_BLOCK)
+		data->player.pos_y += data->player.motion_y;
+	else
+		data->player.motion_y = 0;
+}
+
+void	update_render()
+{
+
 }
 
 void	update_player_condition(t_all_data *data)
@@ -301,9 +291,179 @@ void	update_player_condition(t_all_data *data)
 	player->motion_x += player->move_x * cs + player->move_y * sn;
 	update_view_dir(player, &data->keys);
 	collide_y(data);
+	collide_x(data);
+	data->player.view_dir += data->player.motion_view_dir;
+}
+
+t_rot	make_rot(double angle)
+{
+	t_rot	rot;
+
+	rot.angle = angle;
+	rot.cos = cos(rot.angle);
+	rot.sin = sin(rot.angle);
+}
+
+t_ray	get_init_ray(t_rot *rot, double x, double y)
+{
+	t_ray	ray;
+
+	if (rot->cos > 0)
+		ray.st_cos_x = floor(x + 1) - x;
+	else
+		ray.st_cos_x = ceil(x - 1) - x;
+	ray.st_cos_y = ray.st_cos_x * (rot->sin / rot->cos);
+	ray.ln_cos = sqrt(pow(ray.st_cos_x, 2) + pow(ray.st_cos_y, 2));
+	if (rot->sin > 0)
+		ray.st_cos_y = floor(y + 1) - y;
+	else
+		ray.st_cos_y = ceil(y - 1) - y;
+	ray.st_sin_x = ray.st_sin_y * (rot->cos / rot->sin);
+	ray.ln_sin =  sqrt(pow(ray.st_sin_x, 2) + pow(ray.st_sin_y, 2));
+	return (ray);
+}
+
+t_vec	get_collide_pos(t_trace tr)
+{
+	t_vec	pos;
+
+	if (tr.ray.ln_cos > tr.ray.ln_sin)
+	{
+		pos.x = floor(tr.ref_x + tr.ray.st_sin_x);
+		pos.y = floor(tr.ref_y + tr.ray.st_sin_y + tr.rot.sin / 2);
+	}
+	else
+	{
+		pos.x = floor(tr.ref_x + tr.ray.st_cos_x + tr.rot.cos / 2);
+		pos.y = floor(tr.ref_y + tr.ray.st_cos_y);
+	}
+	return (pos);
+}
+
+char	get_side(t_trace trace)
+{
+	if (trace.ray.ln_cos > trace.ray.ln_sin)
+	{
+		if (trace.rot.sin > 0)
+			return ('E');
+		return ('W');
+	}
+	if (trace.rot.cos > 0)
+		return ('N');
+	return ('S');
+}
+
+t_img_data	*get_texture(t_all_data *data, char side)
+{
+	if (side == 'E')
+		return (&(data->textures.NO));
+	if (side == 'W')
+		return (&(data->textures.SO));
+	if (side == 'N')
+		return (&(data->textures.WE));
+	return (&(data->textures.EA));
+}
 
 
+//Return position of the ray in the texture from 0 to 0.99
+double	tex_offset(t_trace trace)
+{
+	double	offset;
 
+
+	if (trace.ray.ln_cos < trace.ray.ln_sin)
+	{
+		offset = trace.ref_x + trace.ref_y + trace.ray.st_cos_x
+			+ trace.ray.st_cos_y;
+		offset -= (int)offset;
+		if (trace.rot.cos < 0)
+			offset = 1 - offset;
+	}
+	else
+	{
+		offset = trace.ref_x + trace.ref_y + trace.ray.st_sin_x
+			+ trace.ray.st_sin_y;
+		offset -= (int)offset;
+		if (trace.rot.sin > 0)
+			offset = 1 - offset;
+	}
+	return (offset);
+}
+
+void	setup_line(t_all_data *data, t_trace *tr)
+{
+	tr->side = get_side(*tr);
+	tr->len = fmin(tr->ray.ln_cos, tr->ray.ln_sin);
+	data->depth[tr->line.x] = fmin(tr->len, data->depth[tr->line.x]);
+	tr->line.height = S_HEIGHT / (tr->len * cos(tr->newa));
+	tr->line.y = (S_HEIGHT - tr->line.height) / 2;
+	tr->line.img = get_texture(data, tr->side);
+	tr->offset = tex_offset(*tr);
+}
+
+int	get_pixel(t_img_data *img, int x, int y)
+{
+	return (*(int *)(img->addr + (y * img->line_length + x
+		* (img->bits_per_pixel / 8))));
+}
+
+void	set_img_strip(t_img_data *img, t_shape shape, double offset)
+{
+	t_vec		v;
+	int			t;
+	double		o;
+	double		cur;
+	char		*dst;
+
+	v.y = fmax(0, shape.y);
+	v.x = (shape.img->w - 1) * offset;
+	o = shape.img->h / (double)shape.height;
+	cur = o * (v.y - shape.y);
+	dst = img->addr + (v.y * img->line_length +
+		shape.x * (img->bits_per_pixel / 8));
+	while (v.y < shape.y + shape.height && v.y < img->h)
+	{
+		t = get_pixel(shape.img, v.x, (int)cur);
+		*(unsigned int*)dst = t;
+		dst += img->line_length;
+		cur += o;
+		v.y++;
+	}
+}
+
+void	do_ray(t_all_data *data, t_trace *tr)
+{
+	tr->pos = get_collide_pos(*tr);
+	if (get_map_value(&data->map, tr->pos.x, tr->pos.y) == MAP_BLOCK)
+	{
+		setup_line(data, tr);
+		set_img_strip(&data->img, tr->line, tr->offset);
+		tr->i = RENDER_DISTANCE;
+		return ;
+	}
+	cast_forward(&tr->ray, tr->step);
+	tr->i++;
+}
+
+void	ray_cast(t_all_data *data)
+{
+	t_trace	trace;
+
+	trace.line.width = 1;
+	trace.line.x = -1;
+	while (++trace.line.x < S_WIDTH)
+	{
+		data->depth[trace.line.x] = 999;
+		trace.newa = atan2((trace.line.x / (double)S_WIDTH) - 0.5, data->fov);
+		trace.rot = make_rot(data->player.view_dir + trace.newa);
+		trace.ref_x = data->player.render_x;
+		trace.ref_y = data->player.render_y;
+		trace.ray = get_init_ray(&trace.rot, trace.ref_x, trace.ref_y);
+		trace.step = get_init_ray(&trace.rot, 0, 0);
+		trace.i = 0;
+		while (trace.i < RENDER_DISTANCE)
+			do_ray(data, &trace);
+	}
 }
 
 int	render_next_frame(t_all_data *data)
@@ -311,7 +471,8 @@ int	render_next_frame(t_all_data *data)
 	update_move_direction(data);
 	update_player_condition(data);
 	img_paint_floor_ceiling(data);
-	calc_ray_position(data);
+	ray_cast(data);
+	//calc_ray_position(data);
 	mlx_put_image_to_window(data->mlx, data->win, data->img.img, 0, 0);
 	return (0);
 }
@@ -698,36 +859,36 @@ void	init_data(t_all_data *data, int ac, char **av)
 	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
 	data->img.img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
 	data->img.addr = mlx_get_data_addr(data->img.img, &data->img.bits_per_pixel, &data->img.line_length, &data->img.endian);
-
-
-	//in order to delete.
-	data->dirX = -1;
-	data->dirY = 0;
-	data->time = 0;
 	data->keys.W = FALSE;
 	data->keys.A = FALSE;
 	data->keys.S = FALSE;
 	data->keys.D = FALSE;
 	data->keys.L_rot = FALSE;
 	data->keys.R_rot = FALSE;
+
+
+	//in order to delete.
+	data->dirX = -1;
+	data->dirY = 0;
+	data->time = 0;
 }
 
 int	handle_keypress(int	key, t_all_data *data)
 {
-	if (key == XK_Escape)
-		handle_destroy(data);
 	if (key == XK_W || key == XK_w)
 		data->keys.W = TRUE;
-	if (key == XK_A || key == XK_a)
+	else if (key == XK_A || key == XK_a)
 		data->keys.A = TRUE;
-	if (key == XK_S || key == XK_s)
+	else if (key == XK_S || key == XK_s)
 		data->keys.S = TRUE;
-	if (key == XK_D || key == XK_d)
+	else if (key == XK_D || key == XK_d)
 		data->keys.D = TRUE;
-	if (key == XK_Left)
+	else if (key == XK_Left)
 		data->keys.L_rot = TRUE;
-	if (key == XK_Right)
+	else if (key == XK_Right)
 		data->keys.R_rot = TRUE;
+	else if (key == XK_Escape)
+		handle_destroy(data);
 	return (0);
 }
 
