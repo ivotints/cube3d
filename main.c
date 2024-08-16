@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/15 09:01:29 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/16 18:04:50 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,14 +80,58 @@ int	main(int ac, char **av)
 }
  */
 
+void	destroy_img(t_all_data *data, t_img_data *img)
+{
+	if (img->img)
+	{
+		mlx_destroy_image(data->mlx, img->img);
+		img->img = NULL;
+	}
+}
+
+void	clean_images(t_all_data *data)
+{
+	destroy_img(data, &(data->textures.NO));
+	destroy_img(data, &(data->textures.SO));
+	destroy_img(data, &(data->textures.EA));
+	destroy_img(data, &(data->textures.WE));
+	destroy_img(data, &(data->img));
+}
+
+void	free_file(t_line *file)
+{
+	t_line *next;
+
+	while (file)
+	{
+		next = file->next;
+		if (file->line)
+			free(file->line);
+		free(file);
+		file = next;
+	}
+}
+
+void	clean_data(t_all_data *data, int exit_code)
+{
+	if (data)
+	{
+		clean_images(data);
+		if (data->win)
+			mlx_destroy_window(data->mlx, data->win);
+		mlx_destroy_display(data->mlx);
+		free(data->map.map);
+		free_file(data->list);
+		free(data->depth);
+		free(data->mlx);
+		exit(exit_code);
+	}
+}
 
 int	handle_destroy(t_all_data *data)
 {
-	mlx_destroy_image(data->mlx, data->img.img);
-	mlx_destroy_window(data->mlx, data->win);
-	mlx_destroy_display(data->mlx);
-	free(data->mlx);
-	exit(0);
+	clean_data(data, 0);
+	return (0);
 }
 
 int	is_movement_key(int key)
@@ -139,106 +183,6 @@ void	update_move_direction(t_all_data *data)
 		normalize(&player->move_x, &player->move_y, 0.0045);
 }
 
-
-
-double	current_time()
-{
-	struct timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	return (ts.tv_sec + (double)ts.tv_nsec / 1000000000.0);
-}
-
-void	vertLine(int x, t_all_data *data)
-{
-	while (data->drawStart <= data->drawEnd)
-	{
-		my_mlx_pixel_put(&data->img, x, data->drawStart, data->color);
-		data->drawStart++;
-	}
-}
-
-void	calc_ray_position(t_all_data *data)
-{
-	int	x;
-
-	x = 0;
-	while (x < S_WIDTH)
-	{
-		data->cameraX = 2 * x / (double)S_WIDTH - 1;
-		data->rayDirX = data->dirX + data->planeX * data->cameraX;
-		data->rayDirY = data->dirY + data->planeY * data->cameraX;
-		data->mapX = (int)data->posX;
-		data->mapY = (int)data->posY;
-		data->deltaDistX = 1e30;
-		if (data->rayDirX != 0)
-			data->deltaDistX = fabs(1 / data->rayDirX);
-		data->deltaDistY = 1e30;
-		if (data->rayDirY != 0)
-			data->deltaDistY = fabs(1 / data->rayDirY);
-		data->hit = 0;
-		if (data->rayDirX < 0)
-		{
-			data->stepX = -1;
-			data->sideDistX = (data->posX - data->mapX) * data->deltaDistX;
-		}
-		else
-		{
-			data->stepX = 1;
-			data->sideDistX = (data->mapX + 1.0 - data->posX) * data->deltaDistX;
-		}
-		if (data->rayDirY < 0)
-		{
-			data->stepY = -1;
-			data->sideDistY = (data->posY - data->mapY) * data->deltaDistY;
-		}
-		else
-		{
-			data->stepY = 1;
-			data->sideDistY = (data->mapY + 1.0 - data->posY) * data->deltaDistY;
-		}
-		data->hit = 0;
-		while (data->hit == 0)
-		{
-			if (data->sideDistX < data->sideDistY)
-			{
-				data->sideDistX += data->deltaDistX;
-				data->mapX += data->stepX;
-				data->side = 0;
-			}
-			else
-			{
-				data->sideDistY += data->deltaDistY;
-				data->mapY += data->stepY;
-				data->side = 1;
-			}
-			if (worldMap[data->mapX][data->mapY] > 0)
-				data->hit = 1;
-		}
-		if (data->side == 0)
-			data->perpWallDist = (data->sideDistX - data->deltaDistX);
-		else
-			data->perpWallDist = (data->sideDistY - data->deltaDistY);
-		data->lineHeight = (int)(S_HEIGHT / data->perpWallDist);
-		data->drawStart = S_HEIGHT / 2 - data->lineHeight / 2;
-		if (data->drawStart < 0)
-			data->drawStart = 0;
-		data->drawEnd = S_HEIGHT / 2 + data->lineHeight / 2;
-		if (data->drawEnd >= S_HEIGHT)
-			data->drawEnd = S_HEIGHT - 1;
-		data->color = create_trgb(0, 100, 0, 0);
-		if (data->side == 1)
-			data->color /= 2;
-		vertLine(x, data);
-		data->oldTime = data->time;
-		//data->time = current_time();
-		//data->frameTime = (data->time - data->oldTime);
-		data->frameTime = 0.000003f;
-		data->moveSpeed = data->frameTime * 5000.0;
-		data->rotSpeed = data->frameTime * 3000.0;
-		x++;
-	}
-}
-
 void	update_view_dir(t_player *player, t_keys *keys)
 {
 	if (keys->L_rot && !keys->R_rot)
@@ -250,7 +194,13 @@ void	update_view_dir(t_player *player, t_keys *keys)
 	player->motion_x *= 0.9;
 	player->motion_y *= 0.9;
 	player->motion_view_dir *= 0.9;
+}
 
+char	get_map_value(t_map *map, int x, int y)
+{
+	if (x < 0 || y < 0 || x > map->x || y > map->y)
+		return (MAP_EMPTY);
+	return (map->map[y * map->x + x]);
 }
 
 void	collide_x(t_all_data *data)
@@ -292,6 +242,8 @@ void	update_player_condition(t_all_data *data)
 	update_view_dir(player, &data->keys);
 	collide_y(data);
 	collide_x(data);
+	data->player.render_x = data->player.pos_x;
+	data->player.render_y = data->player.pos_y;
 	data->player.view_dir += data->player.motion_view_dir;
 }
 
@@ -302,6 +254,7 @@ t_rot	make_rot(double angle)
 	rot.angle = angle;
 	rot.cos = cos(rot.angle);
 	rot.sin = sin(rot.angle);
+	return (rot);
 }
 
 t_ray	get_init_ray(t_rot *rot, double x, double y)
@@ -317,7 +270,7 @@ t_ray	get_init_ray(t_rot *rot, double x, double y)
 	if (rot->sin > 0)
 		ray.st_cos_y = floor(y + 1) - y;
 	else
-		ray.st_cos_y = ceil(y - 1) - y;
+		ray.st_sin_y = ceil(y - 1) - y;
 	ray.st_sin_x = ray.st_sin_y * (rot->cos / rot->sin);
 	ray.ln_sin =  sqrt(pow(ray.st_sin_x, 2) + pow(ray.st_sin_y, 2));
 	return (ray);
@@ -431,9 +384,26 @@ void	set_img_strip(t_img_data *img, t_shape shape, double offset)
 	}
 }
 
+void	cast_forward(t_ray *ray, t_ray step)
+{
+	if (ray->ln_cos < ray->ln_sin)
+	{
+		ray->st_cos_x += step.st_cos_x;
+		ray->st_cos_y += step.st_cos_y;
+		ray->ln_cos += step.ln_cos;
+	}
+	else
+	{
+		ray->st_sin_x += step.st_sin_x;
+		ray->st_sin_y += step.st_sin_y;
+		ray->ln_sin += step.ln_sin;
+	}
+}
+
 void	do_ray(t_all_data *data, t_trace *tr)
 {
 	tr->pos = get_collide_pos(*tr);
+	printf("%d, %d\n", tr->pos.x, tr->pos.y);
 	if (get_map_value(&data->map, tr->pos.x, tr->pos.y) == MAP_BLOCK)
 	{
 		setup_line(data, tr);
@@ -472,10 +442,13 @@ int	render_next_frame(t_all_data *data)
 	update_player_condition(data);
 	img_paint_floor_ceiling(data);
 	ray_cast(data);
+
 	//calc_ray_position(data);
 	mlx_put_image_to_window(data->mlx, data->win, data->img.img, 0, 0);
 	return (0);
 }
+
+
 
 void	error_msg(char *error1, char *error2, t_all_data *data)
 {
@@ -486,7 +459,7 @@ void	error_msg(char *error1, char *error2, t_all_data *data)
 	ft_putstr_fd(error2, 2);
 	ft_putstr_fd("\n", 2);
 	ft_putstr_fd(RESET, 2);
-	//data
+	clean_data(data, 1);
 	exit(1);
 }
 
@@ -538,6 +511,19 @@ void	add_line(t_line **list, char *str, int size)
 	}
 }
 
+int	is_empty(char *str)
+{
+	if (!str)
+		return (1);
+	while (*str)
+	{
+		if (*str != ' ')
+			return (0);
+		str++;
+	}
+	return (1);
+}
+
 void	read_file(char *file, t_line **start)
 {
 	int		fd;
@@ -559,18 +545,7 @@ void	read_file(char *file, t_line **start)
 	}
 }
 
-int	is_empty(char *str)
-{
-	if (!str)
-		return (1);
-	while (*str)
-	{
-		if (*str != ' ')
-			return (0);
-		str++;
-	}
-	return (1);
-}
+
 
 void	trim_from_end(char *str, char c)
 {
@@ -582,6 +557,7 @@ void	trim_from_end(char *str, char c)
 	i--;
 	while (i >= 0 && str[i] == c)
 		str[i--] = '\0';
+
 }
 
 int	is_identifier(char *s1, char *s2, char **result)
@@ -603,6 +579,7 @@ int	is_identifier(char *s1, char *s2, char **result)
 		*result = s2;
 		return (TRUE);
 	}
+
 	return (FALSE);
 }
 
@@ -610,7 +587,10 @@ t_img_data load_image(void *mlx, char *path)
 {
 	t_img_data	img;
 
+	//printf("%s\n", path);
 	img.img = mlx_xpm_file_to_image(mlx, path, &img.w, &img.h);
+	//write(1, "123456789\n", 9);
+
 	if (img.img)
 		img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel,
 			&img.line_length, &img.endian);
@@ -679,7 +659,7 @@ void	get_map_size(t_line *start, int *x, int *y)
 	*y = 0;
 	while (start)
 	{
-		*y++;
+		(*y)++;
 		*x = fmax(*x, start->size); // do we need size int the structure? or better do ft_strlen nd remove it from the structure
 		start = start->next;
 	}
@@ -761,13 +741,6 @@ int	set_map(t_all_data *data, char c, int x, int y)
 	return (SUCCESS);
 }
 
-char	get_map_value(t_map *map, int x, int y)
-{
-	if (x < 0 || y < 0 || x > map->x || y > map->y)
-		return (MAP_EMPTY);
-	return (map->map[y * map->x + x]);
-}
-
 int	map_flood_fill(t_map *map)
 {
 	int	x;
@@ -824,7 +797,9 @@ void	load_data(t_all_data *data, char *file)
 	int			x;
 	int			y;
 
+	list = NULL;
 	read_file(file, &list);
+	data->list = list;
 	data->textures.NO.img = NULL;
 	data->textures.SO.img = NULL;
 	data->textures.WE.img = NULL;
@@ -839,9 +814,11 @@ void	load_data(t_all_data *data, char *file)
 		list = list->next;
 	}
 	get_map_size(list, &x, &y);
+	//printf("%d, %d\n", x, y);
 	if (x == 0)
 		error_msg("Map is empty. ", NULL, data);
 	data->map = make_empty(x, y);
+
 	if (!data->map.map)
 		error_msg("Failed to create map.", NULL, data);
 	load_map(data, list);
@@ -854,8 +831,8 @@ void	init_data(t_all_data *data, int ac, char **av)
 	if (ac > 2)
 		error_msg(ERRTOOHIGH, NULL, NULL);
 	check_file(av[1]);
-	load_data(data, av[1]);
 	data->mlx = mlx_init();
+	load_data(data, av[1]);
 	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
 	data->img.img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
 	data->img.addr = mlx_get_data_addr(data->img.img, &data->img.bits_per_pixel, &data->img.line_length, &data->img.endian);
@@ -865,12 +842,6 @@ void	init_data(t_all_data *data, int ac, char **av)
 	data->keys.D = FALSE;
 	data->keys.L_rot = FALSE;
 	data->keys.R_rot = FALSE;
-
-
-	//in order to delete.
-	data->dirX = -1;
-	data->dirY = 0;
-	data->time = 0;
 }
 
 int	handle_keypress(int	key, t_all_data *data)
@@ -934,7 +905,6 @@ void	check_data(t_all_data *data)
 void	setup_render(t_all_data *data)
 {
 	data->fov = (double)S_HEIGHT / (double)S_WIDTH;
-	//data->render_distance = 50; /// ???
 	data->depth = malloc(sizeof(double) * S_WIDTH);
 	if (!data->depth)
 		error_msg("Malloc error. setup_render.", NULL, data);

@@ -6,12 +6,12 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/08/02 03:05:01 by ivotints         ###   ########.fr        #
+#    Updated: 2024/08/16 15:35:54 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME		= cube3d
-CFLAGS		= -Wall -Wextra #-Werror
+CFLAGS		= -Wall -Wextra -Werror -g
 LIBS		= -lft -lmlx -lm -lX11 -lXext -I$(PATH_MLX)
 FLAGS		= -L./libft -L$(PATH_MLX)
 OBJ_DIR		= obj
@@ -48,10 +48,10 @@ $(OBJ_DIR):
 	@mkdir -p $@
 
 run: $(NAME)
-	@./$(NAME)
+	@./$(NAME) lvl_0.cub
 
 vrun: $(NAME)
-	@valgrind ./$(NAME)
+	@valgrind ./$(NAME) lvl_0.cub
 
 clean:
 #	@make clean -C $(PATH_FT)

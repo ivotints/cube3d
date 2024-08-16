@@ -6,13 +6,13 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/01 20:48:05 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/01 22:16:57 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/15 10:08:07 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cube3d.h"
 
-void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color)
+void	img_paint_rectangle(t_img_data *img, int *coordinates4, int color)
 {
 	int	i;
 	int	j;
@@ -27,7 +27,7 @@ void	img_paint_rectangle(t_all_data *data, int *coordinates4, int color)
 		i = coordinates4[0];
 		while (i < x)
 		{
-			my_mlx_pixel_put(data->img, i, j, color);
+			my_mlx_pixel_put(img, i, j, color);
 			i++;
 		}
 		j++;

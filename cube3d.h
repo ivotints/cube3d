@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/15 07:49:09 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/16 17:19:04 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,9 @@
 # define ResizeRequest 25
 # define KeyPressMask (1L<<0)
 # define KeyReleaseMask (1L<<1)
-# define MAP_EMPTY 10
-# define MAP_AIR 0
-# define MAP_BLOCK 1
+# define MAP_EMPTY 'Y'
+# define MAP_AIR '0'
+# define MAP_BLOCK '1'
 # define PI 3.14159265358979323846
 # define RENDER_DISTANCE 100
 
@@ -182,8 +182,6 @@ typedef struct s_all_data
 	t_img_data	img;
 	void		*mlx;
 	void		*win;
-	int			ceiling_color;
-	int			floor_color;
 	double		posX;
 	double		posY;
 	double		dirX;
@@ -222,6 +220,7 @@ typedef struct s_all_data
 	t_map		map;
 	double		fov;
 	double		*depth;
+	t_line		*list;
 }	t_all_data;
 
 
@@ -230,8 +229,7 @@ typedef struct s_all_data
 int				create_trgb(int t, int r, int g, int b);
 unsigned char	get_separate_trgb(int trgb, char color);
 void			img_paint_floor_ceiling(t_all_data *data);
-void			img_paint_circle(t_img_data *data, int *xyr, int color);
-void			img_paint_rectangle(t_all_data *data, int *coordinates4, int color);
+void			img_paint_rectangle(t_img_data *img, int *coordinates4, int color);
 void			my_mlx_pixel_put(t_img_data *data, int x, int y, int color);
 int				img_get_color(t_img_data *data, int x, int y);
 void			img_paint_noise(t_img_data *data, int delta);
