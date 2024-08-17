@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/16 17:19:04 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/17 14:37:01 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,12 @@ typedef struct s_textures
 	int			C;
 }	t_textures;
 
+typedef struct s_free
+{
+	char	**srgb;
+	char	*check;
+}	t_free;
+
 typedef struct s_all_data
 {
 	t_img_data	img;
@@ -221,6 +227,7 @@ typedef struct s_all_data
 	double		fov;
 	double		*depth;
 	t_line		*list;
+	t_free		free;
 }	t_all_data;
 
 

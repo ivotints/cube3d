@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/16 18:04:50 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/17 14:39:21 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,18 @@ void	free_file(t_line *file)
 	}
 }
 
+void	free_arr(char **arr)
+{
+	int	i;
+
+	if (!arr)
+		return ;
+	i = 0;
+	while (arr[i])
+		free(arr[i++]);
+	free(arr);
+}
+
 void	clean_data(t_all_data *data, int exit_code)
 {
 	if (data)
@@ -121,6 +133,7 @@ void	clean_data(t_all_data *data, int exit_code)
 			mlx_destroy_window(data->mlx, data->win);
 		mlx_destroy_display(data->mlx);
 		free(data->map.map);
+		free_arr(data->free.srgb);
 		free_file(data->list);
 		free(data->depth);
 		free(data->mlx);
@@ -167,20 +180,20 @@ void	update_move_direction(t_all_data *data)
 
 	keys = &(data->keys);
 	player = &(data->player);
-	player->move_y = 0;
-	if (keys->W)
-		player->move_y += 1;
-	if (keys->S)
-		player->move_y -= 1;
 	player->move_x = 0;
-	if (keys->D)
+	if (keys->W)
 		player->move_x += 1;
-	if (keys->A)
+	if (keys->S)
 		player->move_x -= 1;
-	if (player->move_y > 0)
-		normalize(&player->move_x, &player->move_y, 0.0085);
+	player->move_y = 0;
+	if (keys->D)
+		player->move_y += 1;
+	if (keys->A)
+		player->move_y -= 1;
+	if (player->move_x > 0)
+		normalize(&player->move_y, &player->move_x, 0.01);
 	else
-		normalize(&player->move_x, &player->move_y, 0.0045);
+		normalize(&player->move_y, &player->move_x, 0.009);
 }
 
 void	update_view_dir(t_player *player, t_keys *keys)
@@ -237,8 +250,8 @@ void	update_player_condition(t_all_data *data)
 	player = &(data->player);
 	cs = cos(player->view_dir);
 	sn = sin(player->view_dir);
-	player->motion_y += player->move_y * cs - player->move_x * sn;
-	player->motion_x += player->move_x * cs + player->move_y * sn;
+	player->motion_x += player->move_x * cs - player->move_y * sn;
+	player->motion_y += player->move_y * cs + player->move_x * sn;
 	update_view_dir(player, &data->keys);
 	collide_y(data);
 	collide_x(data);
@@ -268,7 +281,7 @@ t_ray	get_init_ray(t_rot *rot, double x, double y)
 	ray.st_cos_y = ray.st_cos_x * (rot->sin / rot->cos);
 	ray.ln_cos = sqrt(pow(ray.st_cos_x, 2) + pow(ray.st_cos_y, 2));
 	if (rot->sin > 0)
-		ray.st_cos_y = floor(y + 1) - y;
+		ray.st_sin_y = floor(y + 1) - y;
 	else
 		ray.st_sin_y = ceil(y - 1) - y;
 	ray.st_sin_x = ray.st_sin_y * (rot->cos / rot->sin);
@@ -374,7 +387,7 @@ void	set_img_strip(t_img_data *img, t_shape shape, double offset)
 	cur = o * (v.y - shape.y);
 	dst = img->addr + (v.y * img->line_length +
 		shape.x * (img->bits_per_pixel / 8));
-	while (v.y < shape.y + shape.height && v.y < img->h)
+	while (v.y < shape.y + shape.height && v.y < S_HEIGHT)
 	{
 		t = get_pixel(shape.img, v.x, (int)cur);
 		*(unsigned int*)dst = t;
@@ -403,7 +416,6 @@ void	cast_forward(t_ray *ray, t_ray step)
 void	do_ray(t_all_data *data, t_trace *tr)
 {
 	tr->pos = get_collide_pos(*tr);
-	printf("%d, %d\n", tr->pos.x, tr->pos.y);
 	if (get_map_value(&data->map, tr->pos.x, tr->pos.y) == MAP_BLOCK)
 	{
 		setup_line(data, tr);
@@ -608,28 +620,31 @@ void	set_texture(t_img_data *img, t_all_data *data, char *path)
 
 void	set_color(int *col, t_all_data *data, char *RGB)
 {
-	char	**srgb;
 	int		checkint;
-	char	*check;
 	int		i;
 
 	if (*col != 0x12345678)
 		error_msg("Duplicate color.", RGB, data);
-	srgb = ft_split(RGB, ',');
+	data->free.srgb = ft_split(RGB, ',');
 	i = 0;
-	while (srgb[i])
+	while (data->free.srgb[i])
 	{
-		checkint = ft_atoi(srgb[i]);
+		checkint = ft_atoi(data->free.srgb[i]);
 		if (checkint > 255 || checkint < 0)
 			error_msg("Range is from 0 to 255.", RGB, data);
-		check = ft_itoa(checkint);
-		if (ft_strcmp(check, srgb[i]) != 0)
+		data->free.check = ft_itoa(checkint);
+		if (ft_strcmp(data->free.check, data->free.srgb[i]) != 0)
+		{
+			free(data->free.check);
 			error_msg("Other chars in color set.", RGB, data);
+		}
+		free(data->free.check);
 		i++;
 	}
 	if (i != 3)
 		error_msg("3 numbers required.", RGB, data);
-	*col = create_trgb(0, ft_atoi(srgb[0]), ft_atoi(srgb[1]), ft_atoi(srgb[2]));
+	*col = create_trgb(0, ft_atoi(data->free.srgb[0]), ft_atoi(data->free.srgb[1]), ft_atoi(data->free.srgb[2]));
+	free_arr(data->free.srgb);
 }
 
 int	read_identifier(t_all_data *data, char *line)
@@ -705,13 +720,13 @@ int	set_player(t_all_data *data, char c, int x, int y)
 {
 	int	val;
 
-	if (c == 'E')
+	if (c == 'W')
 		val = 0;
-	else if (c == 'S')
-		val = 1;
-	else if (c == 'W')
-		val = 2;
 	else if (c == 'N')
+		val = 1;
+	else if (c == 'E')
+		val = 2;
+	else if (c == 'S')
 		val = 3;
 	else
 		return (FAILURE);
@@ -842,6 +857,9 @@ void	init_data(t_all_data *data, int ac, char **av)
 	data->keys.D = FALSE;
 	data->keys.L_rot = FALSE;
 	data->keys.R_rot = FALSE;
+	data->img.h = S_HEIGHT;
+	data->img.w = S_WIDTH;
+	data->free.srgb = NULL;
 }
 
 int	handle_keypress(int	key, t_all_data *data)
