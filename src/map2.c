@@ -1,35 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   img_paint_rectangle.c                              :+:      :+:    :+:   */
+/*   map2.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/01 20:48:05 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/15 10:08:07 by ivotints         ###   ########.fr       */
+/*   Created: 2024/08/18 14:18:07 by ivotints          #+#    #+#             */
+/*   Updated: 2024/08/18 14:18:31 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cube3d.h"
 
-void	img_paint_rectangle(t_img_data *img, int *coordinates4, int color)
+char	get_map_value(t_map *map, int x, int y)
 {
-	int	i;
-	int	j;
-	int	x;
-	int	y;
-
-	j = coordinates4[1];
-	x = coordinates4[2];
-	y = coordinates4[3];
-	while (j < y)
-	{
-		i = coordinates4[0];
-		while (i < x)
-		{
-			my_mlx_pixel_put(img, i, j, color);
-			i++;
-		}
-		j++;
-	}
+	if (x < 0 || y < 0 || x > map->x || y > map->y)
+		return (MAP_EMPTY);
+	return (map->map[y * map->x + x]);
 }

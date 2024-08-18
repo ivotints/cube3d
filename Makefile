@@ -6,7 +6,7 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/08/18 13:55:02 by ivotints         ###   ########.fr        #
+#    Updated: 2024/08/18 15:28:15 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,8 +16,9 @@ LIBS		= -lft -lmlx -lm -lX11 -lXext -I$(PATH_MLX)
 FLAGS		= -L./libft -L$(PATH_MLX)
 OBJ_DIR		= obj
 OBJS		= $(SRCS:%.c=$(OBJ_DIR)/%.o)
-SRCS		= main.c get_separate_trgb.c img_paint_floor_ceiling.c \
-			img_paint_rectangle.c my_mlx_pixel_put.c \
+SRCS		= check.c clean.c error.c file.c handle.c identifier.c \
+			init.c load.c main.c map2.c map.c player2.c player.c \
+			ray2.c ray.c render.c texture.c utils.c img_paint_floor_ceiling.c \
 			img_get_color.c
 
 INCLUDE		= -I ./ -I ./includes
@@ -26,7 +27,7 @@ PATH_MLX	= minilibx-linux/
 LIBFT_A		= libft/libft.a
 LIBMLX_A	= minilibx-linux/libmlx.a
 RM			= rm -rf
-VPATH		= imglib
+VPATH		= src
 #FLAGS		= -I$(PATH_MLX) -lbsd -lXext -lX11 -Wl,-rpath=./$(PATH_MLX)/
 
 all: $(NAME)
@@ -48,10 +49,10 @@ $(OBJ_DIR):
 	@mkdir -p $@
 
 run: $(NAME)
-	@./$(NAME) lvl_0.cub
+	@./$(NAME) maps/lvl_0.cub
 
 vrun: $(NAME)
-	@valgrind ./$(NAME) lvl_0.cub
+	@valgrind ./$(NAME) maps/lvl_0.cub
 
 clean:
 #	@make clean -C $(PATH_FT)

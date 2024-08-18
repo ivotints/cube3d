@@ -1,28 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   render.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/18 15:32:03 by ivotints         ###   ########.fr       */
+/*   Created: 2024/08/18 14:18:48 by ivotints          #+#    #+#             */
+/*   Updated: 2024/08/18 14:55:19 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cube3d.h"
 
-int	main(int ac, char **av)
+void	setup_render(t_all_data *data)
 {
-	t_all_data	data;
+	data->fov = (double)S_HEIGHT / (double)S_WIDTH;
+	data->depth = malloc(sizeof(double) * S_WIDTH);
+	if (!data->depth)
+		error_msg("Malloc error. setup_render.", NULL, data);
+}
 
-	set_null(&data);
-	init_data(&data, ac, av);
-	setup_render(&data);
-	mlx_hook(data.win, ON_DESTROY, 0, handle_destroy, &data);
-	mlx_hook(data.win, ON_KEYDOWN, (1L << 0), handle_keypress, &data);
-	mlx_hook(data.win, ON_KEYUP, (1L << 1), handle_keyrelease, &data);
-	mlx_loop_hook(data.mlx, render_next_frame, &data);
-	mlx_loop(data.mlx);
+int	render_next_frame(t_all_data *data)
+{
+	update_move_direction(data);
+	update_player_condition(data);
+	img_paint_floor_ceiling(data);
+	ray_cast(data);
+	mlx_put_image_to_window(data->mlx, data->win, data->img.img, 0, 0);
 	return (0);
 }
