@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/18 12:01:04 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/18 13:48:54 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -934,7 +934,6 @@ void	set_null(t_all_data *data)
 	data->win = NULL;
 	data->mlx = NULL;
 	data->map.map = NULL;
-	data->free.srgb = NULL;
 	data->list = NULL;
 	data->depth = NULL;
 	data->mlx = NULL;
@@ -953,7 +952,7 @@ int	main(int ac, char **av)
 	set_null(&data);
 	init_data(&data, ac, av);
 	setup_render(&data);
-	mlx_hook(data.win, 17, 0, handle_destroy, &data);
+	mlx_hook(data.win, ON_DESTROY, 0, handle_destroy, &data);
 	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, handle_keypress, &data);
 	mlx_hook(data.win, ON_KEYUP, KeyReleaseMask, handle_keyrelease, &data);
 	mlx_loop_hook(data.mlx, render_next_frame, &data);
