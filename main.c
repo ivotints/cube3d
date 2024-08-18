@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 19:58:15 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/17 14:39:21 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/08/18 12:01:04 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,6 @@ void	clean_data(t_all_data *data, int exit_code)
 			mlx_destroy_window(data->mlx, data->win);
 		mlx_destroy_display(data->mlx);
 		free(data->map.map);
-		free_arr(data->free.srgb);
 		free_file(data->list);
 		free(data->depth);
 		free(data->mlx);
@@ -311,8 +310,8 @@ char	get_side(t_trace trace)
 	if (trace.ray.ln_cos > trace.ray.ln_sin)
 	{
 		if (trace.rot.sin > 0)
-			return ('E');
-		return ('W');
+			return ('W');
+		return ('E');
 	}
 	if (trace.rot.cos > 0)
 		return ('N');
@@ -622,29 +621,38 @@ void	set_color(int *col, t_all_data *data, char *RGB)
 {
 	int		checkint;
 	int		i;
+	char	**srgb;
+	char	*check;
 
 	if (*col != 0x12345678)
 		error_msg("Duplicate color.", RGB, data);
-	data->free.srgb = ft_split(RGB, ',');
+	srgb = ft_split(RGB, ',');
 	i = 0;
-	while (data->free.srgb[i])
+	while (srgb[i])
 	{
-		checkint = ft_atoi(data->free.srgb[i]);
+		checkint = ft_atoi(srgb[i]);
 		if (checkint > 255 || checkint < 0)
-			error_msg("Range is from 0 to 255.", RGB, data);
-		data->free.check = ft_itoa(checkint);
-		if (ft_strcmp(data->free.check, data->free.srgb[i]) != 0)
 		{
-			free(data->free.check);
+			free_arr(srgb);
+			error_msg("Range is from 0 to 255.", RGB, data);
+		}
+		check = ft_itoa(checkint);
+		if (ft_strcmp(check, srgb[i]) != 0)
+		{
+			free(check);
+			free_arr(srgb);
 			error_msg("Other chars in color set.", RGB, data);
 		}
-		free(data->free.check);
+		free(check);
 		i++;
 	}
 	if (i != 3)
-		error_msg("3 numbers required.", RGB, data);
-	*col = create_trgb(0, ft_atoi(data->free.srgb[0]), ft_atoi(data->free.srgb[1]), ft_atoi(data->free.srgb[2]));
-	free_arr(data->free.srgb);
+	{
+		free_arr(srgb);
+		error_msg("3 RGB numbers required.", RGB, data);
+	}
+	*col = create_trgb(0, ft_atoi(srgb[0]), ft_atoi(srgb[1]), ft_atoi(srgb[2]));
+	free_arr(srgb);
 }
 
 int	read_identifier(t_all_data *data, char *line)
@@ -707,12 +715,6 @@ t_player	make_player(void)
 	p.motion_view_dir = 0;
 	p.motion_x = 0;
 	p.motion_y = 0;
-	// p.keys.W = 0;
-	// p.keys.A = 0;
-	// p.keys.S = 0;
-	// p.keys.D = 0;
-	// p.keys.L_rot = 0;
-	// p.keys.R_rot = 0;
 	return (p);
 }
 
@@ -722,11 +724,11 @@ int	set_player(t_all_data *data, char c, int x, int y)
 
 	if (c == 'W')
 		val = 0;
-	else if (c == 'N')
+	else if (c == 'S')
 		val = 1;
 	else if (c == 'E')
 		val = 2;
-	else if (c == 'S')
+	else if (c == 'N')
 		val = 3;
 	else
 		return (FAILURE);
@@ -796,7 +798,7 @@ void	load_map(t_all_data *data, t_line *list)
 		while (x < list->size)
 		{
 			if (!set_map(data, list->line[x], x, y))
-				error_msg("Unknown chars in the map.", &list->line[x], data);
+				error_msg("Unknown symbol in the *.cub file.", &list->line[x], data);
 			x++;
 		}
 		y++;
@@ -839,6 +841,28 @@ void	load_data(t_all_data *data, char *file)
 	load_map(data, list);
 }
 
+void	check_data(t_all_data *data)
+{
+	if (S_HEIGHT < 1 || S_HEIGHT < 1)
+		error_msg("Wrong resolution.", NULL, data);
+	if (S_HEIGHT > 5000 || S_HEIGHT > 5000)
+		error_msg("Wrong resolution. Too big.", NULL, data);
+	if (data->textures.C == 0x12345678)
+		error_msg("Ceiling color is not set.", NULL, data);
+	if (data->textures.F == 0x12345678)
+		error_msg("Floor color is not set.", NULL, data);
+	if (data->player.is_set == FALSE)
+		error_msg("No player in the map.", NULL, data);
+	if (data->textures.EA.img == NULL)
+		error_msg("EA texture is not set.", NULL, data);
+	if (data->textures.WE.img == NULL)
+		error_msg("WE texture is not set.", NULL, data);
+	if (data->textures.NO.img == NULL)
+		error_msg("NO texture is not set.", NULL, data);
+	if (data->textures.SO.img == NULL)
+		error_msg("SO texture is not set.", NULL, data);
+}
+
 void	init_data(t_all_data *data, int ac, char **av)
 {
 	if (ac < 2)
@@ -848,18 +872,12 @@ void	init_data(t_all_data *data, int ac, char **av)
 	check_file(av[1]);
 	data->mlx = mlx_init();
 	load_data(data, av[1]);
+	check_data(data);
 	data->win = mlx_new_window(data->mlx, S_WIDTH, S_HEIGHT, PROGRAM_NAME);
 	data->img.img = mlx_new_image(data->mlx, S_WIDTH, S_HEIGHT);
 	data->img.addr = mlx_get_data_addr(data->img.img, &data->img.bits_per_pixel, &data->img.line_length, &data->img.endian);
-	data->keys.W = FALSE;
-	data->keys.A = FALSE;
-	data->keys.S = FALSE;
-	data->keys.D = FALSE;
-	data->keys.L_rot = FALSE;
-	data->keys.R_rot = FALSE;
 	data->img.h = S_HEIGHT;
 	data->img.w = S_WIDTH;
-	data->free.srgb = NULL;
 }
 
 int	handle_keypress(int	key, t_all_data *data)
@@ -898,28 +916,6 @@ int	handle_keyrelease(int key, t_all_data *data)
 	return (0);
 }
 
-void	check_data(t_all_data *data)
-{
-	if (S_HEIGHT < 1 || S_HEIGHT < 1)
-		error_msg("Wrong resolution.", NULL, data);
-	if (S_HEIGHT > 5000 || S_HEIGHT > 5000)
-		error_msg("Wrong resolution. Too big.", NULL, data);
-	if (data->textures.C == 0x12345678)
-		error_msg("Ceiling color is not set.", NULL, data);
-	if (data->textures.F == 0x12345678)
-		error_msg("Floor color is not set.", NULL, data);
-	if (data->player.is_set == FALSE)
-		error_msg("No player in the map.", NULL, data);
-	if (data->textures.EA.img == NULL)
-		error_msg("EA texture is not set.", NULL, data);
-	if (data->textures.WE.img == NULL)
-		error_msg("WE texture is not set.", NULL, data);
-	if (data->textures.NO.img == NULL)
-		error_msg("NO texture is not set.", NULL, data);
-	if (data->textures.SO.img == NULL)
-		error_msg("SO texture is not set.", NULL, data);
-}
-
 void	setup_render(t_all_data *data)
 {
 	data->fov = (double)S_HEIGHT / (double)S_WIDTH;
@@ -928,12 +924,34 @@ void	setup_render(t_all_data *data)
 		error_msg("Malloc error. setup_render.", NULL, data);
 }
 
+void	set_null(t_all_data *data)
+{
+	data->textures.NO.img = NULL;
+	data->textures.SO.img = NULL;
+	data->textures.EA.img = NULL;
+	data->textures.WE.img = NULL;
+	data->img.img = NULL;
+	data->win = NULL;
+	data->mlx = NULL;
+	data->map.map = NULL;
+	data->free.srgb = NULL;
+	data->list = NULL;
+	data->depth = NULL;
+	data->mlx = NULL;
+	data->keys.W = FALSE;
+	data->keys.A = FALSE;
+	data->keys.S = FALSE;
+	data->keys.D = FALSE;
+	data->keys.L_rot = FALSE;
+	data->keys.R_rot = FALSE;
+}
+
 int	main(int ac, char **av)
 {
 	t_all_data	data;
 
+	set_null(&data);
 	init_data(&data, ac, av);
-	check_data(&data);
 	setup_render(&data);
 	mlx_hook(data.win, 17, 0, handle_destroy, &data);
 	mlx_hook(data.win, ON_KEYDOWN, KeyPressMask, handle_keypress, &data);
