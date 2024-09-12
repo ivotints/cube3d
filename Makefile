@@ -6,11 +6,11 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/08/18 15:28:15 by ivotints         ###   ########.fr        #
+#    Updated: 2024/09/12 15:25:42 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= cube3d
+NAME		= cube3D
 CFLAGS		= -Wall -Wextra -Werror #-g
 LIBS		= -lft -lmlx -lm -lX11 -lXext -I$(PATH_MLX)
 FLAGS		= -L./libft -L$(PATH_MLX)

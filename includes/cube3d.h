@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/08/18 15:15:32 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/09/12 15:34:56 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@
 # define ERR_EXTENSION "Wrong argument. Extension \".cub\" was not found"
 # define ERR_IS_DIR "It is a directory"
 # define ERR_FAIL_TO_OPEN_FILE "The file cannot be opened"
-# define ERRTOOLOW "Please enter map path. Example: map/lvl_1.cub"
+# define ERRTOOLOW "Please enter map path. Example: maps/lvl_0.cub"
 # define ERRTOOHIGH "Too many arguments. Please enter only one map path"
 
 typedef struct s_vec
