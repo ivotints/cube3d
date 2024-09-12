@@ -6,7 +6,7 @@
 /*   By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 15:59:58 by ivotints          #+#    #+#             */
-/*   Updated: 2024/09/12 15:34:56 by ivotints         ###   ########.fr       */
+/*   Updated: 2024/09/12 19:18:58 by ivotints         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@
 # include <X11/keysym.h> // XK_Escape
 # include "minilibx-linux/mlx.h"
 # include "libft/libft.h"
+# include <sys/time.h>
 
 # define PROGRAM_NAME "cube3d"
 # define MAP_EXTENSION ".cub"
 # define S_WIDTH 800
 # define S_HEIGHT 600
-# define TEXTURE_SIZE 384
 # define TRUE 1
 # define FALSE 0
 # define ON_KEYDOWN 2
