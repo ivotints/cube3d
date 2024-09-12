@@ -6,7 +6,7 @@
 #    By: ivotints <ivotints@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:09:07 by ivotints          #+#    #+#              #
-#    Updated: 2024/09/12 15:25:42 by ivotints         ###   ########.fr        #
+#    Updated: 2024/09/12 18:52:12 by ivotints         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,14 +55,14 @@ vrun: $(NAME)
 	@valgrind ./$(NAME) maps/lvl_0.cub
 
 clean:
-#	@make clean -C $(PATH_FT)
-#	@make clean -C $(PATH_MLX)
+	@make clean -C $(PATH_FT)
+	@make clean -C $(PATH_MLX)
 	@rm -rf $(OBJ_DIR)
 	@echo removed $(OBJ_DIR) folder
 
 fclean: clean
 	@rm -rf $(NAME)
-#	@make fclean -C libft
+	@make fclean -C libft
 	@echo removed $(NAME)
 
 
